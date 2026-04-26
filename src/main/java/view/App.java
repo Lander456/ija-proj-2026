@@ -18,7 +18,7 @@ public class App extends Application {
 
         Game gameLogic = new Game(mockMap);
 
-        gameLogic.createUnit("Tank", "Player1", 0, 0);
+        gameLogic.createUnit("Infantry", "Player1", 0, 0);
 
         GameView gameView = new GameView(gameLogic);
 
