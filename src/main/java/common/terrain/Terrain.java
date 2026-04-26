@@ -5,7 +5,7 @@ import common.enums.Players;
 public abstract class Terrain {
     public abstract Integer getMovementCost(Boolean isWheeled);
     public abstract Integer getDefenceBonus();
-    public abstract String getSprite();
+    public abstract String getTerrainType();
 
     public Boolean isCapturable() { return false; }
 

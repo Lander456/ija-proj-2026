@@ -2,6 +2,7 @@ package common.unit;
 
 import common.enums.AttackTypes;
 import common.enums.MovementTypes;
+import common.enums.Players;
 
 public class Artillery extends Unit {
     public static final String unitType = "Artillery";
@@ -30,6 +31,6 @@ public class Artillery extends Unit {
     public AttackTypes attackType() { return AttackTypes.LONG_RANGE; }
 
     protected Artillery(String owningPlayer, Integer startX, Integer startY) {
-        super(owningPlayer, startX, startY);
+        super(Players.fromString(owningPlayer), startX, startY);
     }
 }

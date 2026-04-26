@@ -2,7 +2,10 @@ package view;
 
 import common.gameEvents.GameEvent;
 import common.gameEvents.eventTypes.MoveEvent;
+import common.terrain.Capturable;
+import common.terrain.Terrain;
 import common.tile.Tile;
+import common.unit.Unit;
 import game.Game;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
@@ -27,12 +30,28 @@ public class GameView extends GridPane implements GameObserver {
         for (int r = 0; r < mapData.length; r++) {
             for (int c = 0; c < mapData[r].length; c++) {
                 Tile tile = mapData[r][c];
+                Terrain terrain = tile.getTerrain();
+                Image terrainImg;
 
-                String terrainPath = tile.getTerrain().getSprite();
-                assert terrainPath != null;
-                ImageView terrainView = createImageView(terrainPath, TILE_SIZE);
+                if (terrain instanceof Capturable) {
+                    terrainImg = AssetManager.getSprite(terrain.getTerrainType(), ((Capturable) terrain).getOwner());
+                } else {
+                    terrainImg = AssetManager.getSprite(terrain.getTerrainType());
+                }
+
+                ImageView terrainView = createImageView(terrainImg, TILE_SIZE);
 
                 this.add(terrainView, c, r);
+
+                if (tile.getUnit() != null) {
+                    Unit unit = tile.getUnit();
+
+                    Image unitImg = AssetManager.getSprite(unit.getUnitType(), unit.getOwnedBy());
+
+                    ImageView unitView = createImageView(unitImg, TILE_SIZE);
+
+                    this.add(unitView, c, r);
+                }
             }
         }
     }
@@ -48,8 +67,7 @@ public class GameView extends GridPane implements GameObserver {
 
     }
 
-    private ImageView createImageView(String path, int size) {
-        Image img = new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
+    private ImageView createImageView(Image img, int size) {
         ImageView iv = new ImageView(img);
         iv.setFitHeight(size);
         iv.setFitWidth(size);

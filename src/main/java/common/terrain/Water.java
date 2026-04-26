@@ -15,7 +15,7 @@ public class Water extends Terrain{
     }
 
     @Override
-    public String getSprite() {
-        return "resources/sprites/terrain/water.png";
+    public String getTerrainType() {
+        return "water";
     }
 }

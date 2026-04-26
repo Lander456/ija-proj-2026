@@ -12,7 +12,7 @@ public class Forest extends Terrain{
     }
 
     @Override
-    public String getSprite() {
-        return "resources/sprites/terrain/forest.png";
+    public String getTerrainType() {
+        return "forest";
     }
 }

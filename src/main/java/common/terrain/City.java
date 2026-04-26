@@ -1,7 +1,5 @@
 package common.terrain;
 
-import common.enums.Players;
-
 public class City extends Capturable{
 
     public static final String code = "C";
@@ -17,6 +15,11 @@ public class City extends Capturable{
     }
 
     @Override
+    public String getTerrainType() {
+        return "city";
+    }
+
+    @Override
     public Integer getIncome() {
         return 1000;
     }
@@ -28,23 +31,5 @@ public class City extends Capturable{
 
     public City(String owner) {
         super(owner);
-    }
-
-    @Override
-    public String getSprite() {
-        switch (this.getOwner()) {
-            case RED -> {
-                return "resources/sprites/buildings/cityRed.png";
-            }
-            case BLUE -> {
-                return "resources/sprites/buildings/cityBlue.png";
-            }
-            case NEUTRAL -> {
-                return "resources/sprites/buildings/cityUncaptured.png";
-            }
-            case null, default -> {
-                return null;
-            }
-        }
     }
 }

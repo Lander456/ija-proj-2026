@@ -1,6 +1,7 @@
 package common.unit;
 
 import common.enums.MovementTypes;
+import common.enums.Players;
 
 public class Tank extends Unit {
     public static final String unitType = "Tank";
@@ -25,7 +26,7 @@ public class Tank extends Unit {
         return unitType;
     }
 
-    protected Tank(String owningPlayer, Integer startX, Integer startY) {
+    protected Tank(Players owningPlayer, Integer startX, Integer startY) {
         super(owningPlayer, startX, startY);
     }
 }

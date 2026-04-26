@@ -14,22 +14,12 @@ public class HQ extends Capturable{
         return 4;
     }
 
-    public HQ(String owner) {
-        super(owner);
+    @Override
+    public String getTerrainType() {
+        return "hq";
     }
 
-    @Override
-    public String getSprite() {
-        switch(this.getOwner()) {
-            case RED -> {
-                return "resources/sprites/buildings/hqRed.png";
-            }
-            case BLUE -> {
-                return "resources/sprites/buildings/hqBlue.png";
-            }
-            case null, default -> {
-                return null;
-            }
-        }
+    public HQ(String owner) {
+        super(owner);
     }
 }

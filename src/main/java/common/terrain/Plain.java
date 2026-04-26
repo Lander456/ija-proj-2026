@@ -15,7 +15,7 @@ public class Plain extends Terrain{
     }
 
     @Override
-    public String getSprite() {
-        return "resources/sprites/terrain/plain.png";
+    public String getTerrainType() {
+        return "plain";
     }
 }

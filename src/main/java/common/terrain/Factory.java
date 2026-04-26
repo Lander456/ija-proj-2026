@@ -15,29 +15,16 @@ public class Factory extends Capturable{
     }
 
     @Override
+    public String getTerrainType() {
+        return "factory";
+    }
+
+    @Override
     public Boolean spawnsUnits() {
         return true;
     }
 
     public Factory(String owner) {
         super(owner);
-    }
-
-    @Override
-    public String getSprite() {
-        switch(this.getOwner()) {
-            case RED -> {
-                return "resources/sprites/buildings/factoryRed.png";
-            }
-            case BLUE -> {
-                return "resources/sprites/buildings/factoryBlue.png";
-            }
-            case NEUTRAL -> {
-                return "resources/sprites/buildings/factoryUncaptured.png";
-            }
-            case null, default -> {
-                return null;
-            }
-        }
     }
 }

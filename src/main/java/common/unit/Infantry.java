@@ -1,6 +1,7 @@
 package common.unit;
 
 import common.enums.MovementTypes;
+import common.enums.Players;
 
 public class Infantry extends Unit {
     public static final String unitType = "Infantry";
@@ -31,6 +32,6 @@ public class Infantry extends Unit {
     }
 
     protected Infantry(String owningPlayer, Integer startX, Integer startY) {
-        super(owningPlayer, startX, startY);
+        super(Players.fromString(owningPlayer), startX, startY);
     }
 }

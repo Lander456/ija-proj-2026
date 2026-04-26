@@ -28,6 +28,6 @@ public abstract class Capturable extends Terrain{
     }
 
     public Capturable(String owner) {
-        this.owner = owner;
+        this.owner = Players.fromString(owner);
     }
 }

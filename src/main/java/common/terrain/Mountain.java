@@ -15,7 +15,7 @@ public class Mountain extends Terrain{
     }
 
     @Override
-    public String getSprite() {
-        return "resources/sprites/terrain/mountain.png";
+    public String getTerrainType() {
+        return "mountain";
     }
 }
