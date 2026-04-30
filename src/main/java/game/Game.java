@@ -41,6 +41,16 @@ public class Game {
         }
     }
 
+    public Game(String[][] mapDef){
+        this.map = new Tile[mapDef.length][mapDef[0].length];
+
+        for (int i = 0; i < mapDef.length; i++) {
+            for (int j = 0; j < mapDef[i].length; j++) {
+                this.map[i][j] = new Tile(mapDef[i][j], "neutral");
+            }
+        }
+    }
+
     /**
      * Uses the UnitFactory to create a new unit of a specified type on a specified tile
      * @param type which type of unit to initialise
@@ -52,7 +62,7 @@ public class Game {
      */
     public Unit createUnit(String type, String player, Integer startX, Integer startY) {
         Unit unit = UnitFactory.create(type, player, startX, startY);
-        map[startX][startY].setUnit(unit);
+        map[startY][startX].setUnit(unit);
         return unit;
     }
 
@@ -199,4 +209,12 @@ public class Game {
     }
 
     public Tile[][] getMap() { return map; }
+
+    public void updateTerrainOwner(int x, int y, String player) {
+        if (x >= 0 && x < map[0].length && y >= 0 && y < map.length) {
+            String terrainType = map[y][x].getTerrain().getTerrainCode();
+            System.out.println(map[y][x].getTerrain().getTerrainType());
+            map[y][x] = new Tile(terrainType, player);
+        }
+    }
 }

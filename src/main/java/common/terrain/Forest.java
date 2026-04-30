@@ -15,4 +15,9 @@ public class Forest extends Terrain{
     public String getTerrainType() {
         return "forest";
     }
+
+    @Override
+    public String getTerrainCode() {
+        return code;
+    }
 }

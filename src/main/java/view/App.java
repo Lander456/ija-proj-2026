@@ -1,6 +1,7 @@
 package view;
 
 import game.Game;
+import io.GameLoader;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
@@ -16,9 +17,7 @@ public class App extends Application {
                 "P P P"
         };
 
-        Game gameLogic = new Game(mockMap);
-
-        gameLogic.createUnit("Infantry", "Player1", 0, 0);
+        Game gameLogic = GameLoader.fromJson("/mapDef/alaraRange.json");
 
         GameView gameView = new GameView(gameLogic);
 

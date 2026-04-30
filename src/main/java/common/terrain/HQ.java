@@ -19,6 +19,11 @@ public class HQ extends Capturable{
         return "hq";
     }
 
+    @Override
+    public String getTerrainCode() {
+        return code;
+    }
+
     public HQ(String owner) {
         super(owner);
     }

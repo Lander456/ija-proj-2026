@@ -18,4 +18,9 @@ public class Plain extends Terrain{
     public String getTerrainType() {
         return "plain";
     }
+
+    @Override
+    public String getTerrainCode() {
+        return code;
+    }
 }

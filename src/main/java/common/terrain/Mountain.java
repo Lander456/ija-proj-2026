@@ -18,4 +18,9 @@ public class Mountain extends Terrain{
     public String getTerrainType() {
         return "mountain";
     }
+
+    @Override
+    public String getTerrainCode() {
+        return code;
+    }
 }

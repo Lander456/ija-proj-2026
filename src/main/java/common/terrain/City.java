@@ -20,6 +20,11 @@ public class City extends Capturable{
     }
 
     @Override
+    public String getTerrainCode() {
+        return code;
+    }
+
+    @Override
     public Integer getIncome() {
         return 1000;
     }

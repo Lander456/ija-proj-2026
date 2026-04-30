@@ -18,4 +18,9 @@ public class Water extends Terrain{
     public String getTerrainType() {
         return "water";
     }
+
+    @Override
+    public String getTerrainCode() {
+        return code;
+    }
 }

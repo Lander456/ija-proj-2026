@@ -34,6 +34,7 @@ public class GameView extends GridPane implements GameObserver {
                 Image terrainImg;
 
                 if (terrain instanceof Capturable) {
+                    System.out.println("owner: " + ((Capturable) terrain).getOwner());
                     terrainImg = AssetManager.getSprite(terrain.getTerrainType(), ((Capturable) terrain).getOwner());
                 } else {
                     terrainImg = AssetManager.getSprite(terrain.getTerrainType());

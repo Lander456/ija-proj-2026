@@ -20,6 +20,11 @@ public class Factory extends Capturable{
     }
 
     @Override
+    public String getTerrainCode() {
+        return code;
+    }
+
+    @Override
     public Boolean spawnsUnits() {
         return true;
     }
