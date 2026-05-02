@@ -7,5 +7,5 @@ import common.gameEvents.GameEvent;
  * @author Tadeas Topinka (xtopint00)
  */
 public interface GameObserver {
-    void update(GameEvent e);
+    void update(GameEvent event);
 }

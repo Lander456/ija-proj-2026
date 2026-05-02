@@ -1,12 +1,15 @@
 package game;
 
 import common.gameEvents.GameEvent;
+import common.gameEvents.eventTypes.ActionMenuEvent;
 import common.gameEvents.eventTypes.MoveEvent;
 import common.Position;
 import common.Node;
+import common.gameEvents.eventTypes.SelectEvent;
 import common.tile.Tile;
 import common.unit.Unit;
 import common.unit.UnitFactory;
+import javafx.scene.input.MouseButton;
 import tool.GameObserver;
 
 import java.util.*;
@@ -20,6 +23,8 @@ public class Game {
 
     private final Tile[][] map;
     private final List<GameObserver> observers = new ArrayList<>();
+    private Position selectedUnitPos = null;
+    private List<Position> currentReachable = new ArrayList<>();
 
     /**
      * The constructor for the Game class
@@ -85,7 +90,7 @@ public class Game {
             movedUnit.setPosition(destination);
             movedUnit.setHasMoved(true);
 
-            notifyObservers(new MoveEvent(startPosition, destination, movedUnit));
+            notifyObservers(new MoveEvent(startPosition, destination));
 
             return true;
         }
@@ -215,6 +220,38 @@ public class Game {
             String terrainType = map[y][x].getTerrain().getTerrainCode();
             System.out.println(map[y][x].getTerrain().getTerrainType());
             map[y][x] = new Tile(terrainType, player);
+        }
+    }
+
+    public void handleInput(int r, int c, MouseButton button) {
+        Position clickedPos = new Position(r, c);
+
+        if (button == MouseButton.PRIMARY && map[r][c].getUnit() != null) {
+            this.selectedUnitPos = new Position(r, c);
+            this.currentReachable = getReachableTiles(clickedPos);
+            notifyObservers(new SelectEvent(clickedPos, currentReachable, true));
+        } else if (button == MouseButton.SECONDARY && selectedUnitPos != null) {
+            System.out.println(clickedPos.toString());
+            System.out.println(selectedUnitPos.toString());
+            System.out.println(currentReachable.toString());
+            if (currentReachable.contains(clickedPos)) {
+                System.out.println("notifying");
+                notifyObservers(new ActionMenuEvent(clickedPos));
+            } else {
+                cancelSelection();
+            }
+        }
+    }
+
+    private void cancelSelection() {
+        this.selectedUnitPos = null;
+        this.currentReachable.clear();
+        notifyObservers(new SelectEvent(null, null, false));
+    }
+
+    public void confirmMove(Position position) {
+        if (moveUnit(selectedUnitPos, position)) {
+            notifyObservers(new MoveEvent(selectedUnitPos, position));
         }
     }
 }
