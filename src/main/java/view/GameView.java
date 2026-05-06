@@ -1,27 +1,24 @@
 package view;
 
 import common.Position;
-import common.gameEvents.GameEvent;
-import common.gameEvents.eventTypes.MoveEvent;
 import common.terrain.Capturable;
 import common.terrain.Terrain;
 import common.tile.Tile;
 import common.unit.Unit;
 import game.Game;
-import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import tool.gameObserver.GameObserver;
+import tool.gameController.gameControllerImpl.GameController;
+import tool.gameObserver.gameObserverImpl.GameObserver;
 
 import java.util.List;
 
@@ -29,6 +26,7 @@ public class GameView extends GridPane {
     private final Game game;
     private final GameObserver observer;
     private final int TILE_SIZE = 32;
+    private GameController controller;
 
     public GameView(Game game) {
         this.game = game;
@@ -167,5 +165,9 @@ public class GameView extends GridPane {
                 endPane.getChildren().add(unitNode);
             }
         }
+    }
+
+    public void setController(GameController controller) {
+        this.controller = controller;
     }
 }

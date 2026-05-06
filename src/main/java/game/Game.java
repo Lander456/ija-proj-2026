@@ -1,16 +1,20 @@
 package game;
 
+import common.enums.Actions;
+import common.enums.Players;
 import common.gameEvents.GameEvent;
 import common.gameEvents.eventTypes.ActionMenuEvent;
 import common.gameEvents.eventTypes.MoveEvent;
 import common.Position;
 import common.Node;
 import common.gameEvents.eventTypes.SelectEvent;
+import common.terrain.Capturable;
+import common.terrain.Terrain;
 import common.tile.Tile;
 import common.unit.Unit;
 import common.unit.UnitFactory;
 import javafx.scene.input.MouseButton;
-import tool.GameObserver;
+import tool.gameObserver.GameObserver;
 
 import java.util.*;
 
@@ -23,8 +27,9 @@ public class Game {
 
     private final Tile[][] map;
     private final List<GameObserver> observers = new ArrayList<>();
-    private Position selectedUnitPos = null;
+    private Position selectedTilePos = null;
     private List<Position> currentReachable = new ArrayList<>();
+    private Players activePlayer = Players.BLUE;
 
     /**
      * The constructor for the Game class
@@ -223,6 +228,39 @@ public class Game {
         }
     }
 
+    public void selectTile(Position position) {
+        this.selectedTilePos = new Position(position.getX(), position.getY());
+        if (map[position.getY()][position.getX()].getUnit() != null) {
+            this.currentReachable = getReachableTiles(position);
+            notifyObservers(new SelectEvent(position, currentReachable, true));
+        } else {
+            this.currentReachable = null;
+        }
+    }
+
+    public void handleActionMenu(Position position) {
+        List<Actions> actions = new ArrayList<>();
+        Terrain terrain = map[position.getY()][position.getX()].getTerrain();
+        Unit selectedUnit = map[this.selectedTilePos.getY()][this.selectedTilePos.getX()].getUnit();
+        Unit unit = map[position.getY()][position.getX()].getUnit();
+
+        if (selectedUnit != null) {
+            if (unit != null) {
+                actions.add(Actions.ATTACK);
+            } else {
+                actions.add(Actions.MOVE);
+
+                if (terrain instanceof Capturable && ((Capturable) terrain).getOwner() != this.activePlayer) {
+                    actions.add(Actions.CAPTURE);
+                }
+            }
+        }
+
+        if (currentReachable.contains(position)) {
+            notifyObservers(new ActionMenuEvent(position, actions));
+        }
+    }
+
     public void handleInput(int r, int c, MouseButton button) {
         Position clickedPos = new Position(r, c);
 
@@ -231,11 +269,7 @@ public class Game {
             this.currentReachable = getReachableTiles(clickedPos);
             notifyObservers(new SelectEvent(clickedPos, currentReachable, true));
         } else if (button == MouseButton.SECONDARY && selectedUnitPos != null) {
-            System.out.println(clickedPos.toString());
-            System.out.println(selectedUnitPos.toString());
-            System.out.println(currentReachable.toString());
             if (currentReachable.contains(clickedPos)) {
-                System.out.println("notifying");
                 notifyObservers(new ActionMenuEvent(clickedPos));
             } else {
                 cancelSelection();
@@ -244,14 +278,14 @@ public class Game {
     }
 
     private void cancelSelection() {
-        this.selectedUnitPos = null;
+        this.selectedTilePos = null;
         this.currentReachable.clear();
         notifyObservers(new SelectEvent(null, null, false));
     }
 
-    public void confirmMove(Position position) {
-        if (moveUnit(selectedUnitPos, position)) {
-            notifyObservers(new MoveEvent(selectedUnitPos, position));
+    public void handleMove(Position position) {
+        if (moveUnit(selectedTilePos, position)) {
+            notifyObservers(new MoveEvent(selectedTilePos, position));
         }
     }
 }
