@@ -3,9 +3,10 @@ package common.unit;
 import common.enums.AttackTypes;
 import common.enums.MovementTypes;
 import common.enums.Players;
+import common.enums.UnitTypes;
 
 public class Artillery extends Unit {
-    public static final String unitType = "Artillery";
+    public static final UnitTypes unitType = UnitTypes.Artillery;
 
     @Override
     public Integer movementRange() {
@@ -23,7 +24,7 @@ public class Artillery extends Unit {
     }
 
     @Override
-    public String getUnitType() {
+    public UnitTypes getUnitType() {
         return unitType;
     }
 

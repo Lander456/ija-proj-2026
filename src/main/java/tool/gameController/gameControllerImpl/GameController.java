@@ -18,7 +18,15 @@ public class GameController implements tool.gameController.GameController {
 
     public void handleClick(Position position, MouseButton button) {
         if (button == MouseButton.PRIMARY) {
-            game.
+            game.selectTile(position);
         }
+    }
+
+    public void moveUnit(Position destination) {
+        game.handleMove(destination);
+    }
+
+    public void attack(Position targetPosition) {
+        game.handleAttack(targetPosition);
     }
 }

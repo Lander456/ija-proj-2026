@@ -2,9 +2,10 @@ package common.unit;
 
 import common.enums.MovementTypes;
 import common.enums.Players;
+import common.enums.UnitTypes;
 
 public class Infantry extends Unit {
-    public static final String unitType = "Infantry";
+    public static final UnitTypes unitType = UnitTypes.Infantry;
 
     @Override
     public Integer movementRange() {
@@ -22,7 +23,7 @@ public class Infantry extends Unit {
     }
 
     @Override
-    public String getUnitType() {
+    public UnitTypes getUnitType() {
         return unitType;
     }
 

@@ -18,4 +18,5 @@ public final class ActionMenuEvent implements GameEvent {
     public Position getPosition() {
         return position;
     }
+    public List<Actions> getActions() { return actions; }
 }

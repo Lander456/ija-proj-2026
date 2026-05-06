@@ -3,11 +3,15 @@ package common.unit;
 import common.enums.Players;
 
 public abstract class UnitFactory {
+    private static final String infantryString = "Infantry";
+    private static final String tankString = "Tank";
+    private static final String artilleryString = "Artillery";
+
     public static Unit create(String unitName, String owningPlayer, Integer startX, Integer startY) {
         return switch (unitName) {
-            case Artillery.unitType -> new Artillery(owningPlayer, startX, startY);
-            case Infantry.unitType -> new Infantry(owningPlayer, startX, startY);
-            case Tank.unitType -> new Tank(Players.fromString(owningPlayer), startX, startY);
+            case artilleryString -> new Artillery(owningPlayer, startX, startY);
+            case infantryString -> new Infantry(owningPlayer, startX, startY);
+            case tankString -> new Tank(owningPlayer, startX, startY);
             default -> throw new IllegalArgumentException("Unknown unit type: " + unitName);
         };
     }

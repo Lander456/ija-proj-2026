@@ -4,6 +4,7 @@ import common.Position;
 import common.enums.AttackTypes;
 import common.enums.MovementTypes;
 import common.enums.Players;
+import common.enums.UnitTypes;
 
 public abstract class Unit {
     private Integer health = 100;
@@ -18,7 +19,7 @@ public abstract class Unit {
 
     public abstract Integer cost();
 
-    public abstract String getUnitType();
+    public abstract UnitTypes getUnitType();
 
     public Boolean canCapture() { return false; }
 
@@ -26,6 +27,10 @@ public abstract class Unit {
 
     public Integer getHealth() { return health; }
     public void setHealth(Integer health) { this.health = health; }
+
+    public void takeDamage(Integer damage) {
+        this.health = this.health - damage;
+    }
 
     public Position getPosition() { return position; }
     public void setPosition(Position position) { this.position = position; }
@@ -45,6 +50,6 @@ public abstract class Unit {
 
     @Override
     public String toString() {
-        return String.format("{%s[%d,%d][%d]}", this.getUnitType(), this.getPosition().getX(), this.getPosition().getY(), this.getHealth());
+        return String.format("{%s[%d,%d][%d]}", this.getUnitType().toString(), this.getPosition().getX(), this.getPosition().getY(), this.getHealth());
     }
 }

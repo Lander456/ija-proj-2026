@@ -2,9 +2,10 @@ package common.unit;
 
 import common.enums.MovementTypes;
 import common.enums.Players;
+import common.enums.UnitTypes;
 
 public class Tank extends Unit {
-    public static final String unitType = "Tank";
+    public static final UnitTypes unitType = UnitTypes.Tank;
 
     @Override
     public Integer movementRange() {
@@ -22,11 +23,11 @@ public class Tank extends Unit {
     }
 
     @Override
-    public String getUnitType() {
+    public UnitTypes getUnitType() {
         return unitType;
     }
 
-    protected Tank(Players owningPlayer, Integer startX, Integer startY) {
-        super(owningPlayer, startX, startY);
+    protected Tank(String owningPlayer, Integer startX, Integer startY) {
+        super(Players.fromString(owningPlayer), startX, startY);
     }
 }

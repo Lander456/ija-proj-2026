@@ -1,14 +1,17 @@
 package view;
 
 import common.Position;
+import common.enums.Actions;
 import common.terrain.Capturable;
 import common.terrain.Terrain;
 import common.tile.Tile;
 import common.unit.Unit;
 import game.Game;
+import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
@@ -61,7 +64,7 @@ public class GameView extends GridPane {
                 if (tile.getUnit() != null) {
                     Unit unit = tile.getUnit();
 
-                    Image unitImg = AssetManager.getSprite(unit.getUnitType(), unit.getOwnedBy());
+                    Image unitImg = AssetManager.getSprite(unit.getUnitType().toString(), unit.getOwnedBy());
 
                     ImageView unitView = createImageView(unitImg, TILE_SIZE);
                     unitView.setId("unit");
@@ -71,7 +74,7 @@ public class GameView extends GridPane {
                 final int finalR = r;
                 final int finalC = c;
                 tilePane.setOnMouseClicked(event -> {
-                    onTileClicked(finalR, finalC, event);
+                    onTileClicked(new Position(finalR, finalC), event);
                 });
 
                 this.add(tilePane, c, r);
@@ -87,8 +90,8 @@ public class GameView extends GridPane {
         return iv;
     }
 
-    private void onTileClicked(int x, int y, MouseEvent event) {
-        game.handleInput(x, y, event.getButton());
+    private void onTileClicked(Position position, MouseEvent event) {
+        controller.handleClick(position, event.getButton());
     }
 
     public void highlightReachableTiles(List<Position> positions) {
@@ -129,18 +132,36 @@ public class GameView extends GridPane {
         return null;
     }
 
-    public void showActionMenu(Position position) {
+    public void showActionMenu(Position position, List<Actions> availableActions) {
         ContextMenu menu = new ContextMenu();
 
-        MenuItem wait = new MenuItem("Wait");
-        wait.setOnAction(event -> {
-            game.confirmMove(position);
-        });
+        for (Actions action : availableActions) {
+            switch (action) {
+                case MOVE -> {
+                    MenuItem move = new MenuItem("Wait");
+                    move.setOnAction(event -> {
+                        controller.moveUnit(position);
+                    });
+                    menu.getItems().add(move);
+                }
 
-        MenuItem cancel = new MenuItem("Cancel");
-        cancel.setOnAction(event -> clearHighlights());
+                case ATTACK -> {
+                    MenuItem attack = new MenuItem("Attack");
+                    attack.setOnAction(event -> {
+                        controller.attack(position);
+                    });
+                    menu.getItems().add(attack);
+                }
+            }
+        }
 
-        menu.getItems().addAll(wait, cancel);
+        if (!menu.getItems().isEmpty()) {
+            MenuItem cancel = new MenuItem("Cancel");
+            cancel.setOnAction(event -> {
+                clearHighlights();
+            });
+            menu.getItems().add(cancel);
+        }
 
         StackPane tilePane = getTilePane(position.getX(), position.getY());
 
@@ -153,10 +174,13 @@ public class GameView extends GridPane {
 
         if (startPane != null && endPane != null) {
             Node unitNode = null;
+            Node healthNode = null;
             for (Node node : startPane.getChildren()) {
-                if (node instanceof ImageView && node.getId().equals("unit")) {
+                if (node.getId().equals("unit")) {
                     unitNode = node;
-                    break;
+                }
+                if (node.getId().equals("health")) {
+                    healthNode = node;
                 }
             }
 
@@ -164,7 +188,70 @@ public class GameView extends GridPane {
                 startPane.getChildren().remove(unitNode);
                 endPane.getChildren().add(unitNode);
             }
+
+            if (healthNode != null) {
+                startPane.getChildren().remove(healthNode);
+                endPane.getChildren().add(healthNode);
+            }
         }
+    }
+
+    public void removeSprite(Position position) {
+        StackPane tilePane = getTilePane(position.getX(), position.getY());
+        Node unitNode = null;
+        Node healthNode = null;
+
+        if (tilePane != null) {
+            for (Node node : tilePane.getChildren()) {
+                if (node.getId().equals("unit")) {
+                    unitNode = node;
+                }
+                if (node.getId().equals("health")) {
+                    healthNode = node;
+                }
+            }
+        }
+
+        if (unitNode != null) {
+            tilePane.getChildren().remove(unitNode);
+        }
+        if (healthNode != null) {
+            tilePane.getChildren().remove(healthNode);
+        }
+    }
+
+    public void updateUnitHealth(Position position, Integer unitHealth) {
+        StackPane tilePane = getTilePane(position.getY(), position.getX());
+
+        Label healthLabel = createHealthLabel(unitHealth);
+
+        if (healthLabel == null) {
+            return;
+        }
+
+        StackPane.setAlignment(healthLabel, Pos.BOTTOM_RIGHT);
+        healthLabel.setTranslateX(-2);
+        healthLabel.setTranslateY(-2);
+
+        tilePane.getChildren().removeIf(node -> node.getId().equals("health"));
+
+        tilePane.getChildren().add(healthLabel);
+    }
+
+    private Label createHealthLabel(Integer health) {
+        if (health < 100) {
+            int displayVal = (int) Math.ceil(health / 10.0);
+
+            Label healthLabel = new Label(String.valueOf(displayVal));
+
+            healthLabel.setId("health");
+            healthLabel.setTextFill(Color.WHITE);
+            healthLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px; -fx-effect: dropshadow(one-pass-box, 2, 1, 0, 0);");
+
+            return healthLabel;
+        }
+
+        return null;
     }
 
     public void setController(GameController controller) {

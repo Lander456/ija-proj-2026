@@ -4,6 +4,7 @@ import common.enums.Actions;
 import common.enums.Players;
 import common.gameEvents.GameEvent;
 import common.gameEvents.eventTypes.ActionMenuEvent;
+import common.gameEvents.eventTypes.AttackEvent;
 import common.gameEvents.eventTypes.MoveEvent;
 import common.Position;
 import common.Node;
@@ -77,8 +78,8 @@ public class Game {
     }
 
     /**
-     * Attempts to move a unit from a certain tile to another
-     * @param startPosition position from which the unit will be moving
+     * Attempts to move a unit attackerPosition a certain tile to another
+     * @param startPosition position attackerPosition which the unit will be moving
      * @param destination position to which the unit will move
      * @return boolean indicating whether the unit has moved successfully
      * @author Tadeas Topinka (xtopint00)
@@ -125,8 +126,8 @@ public class Game {
     }
 
     /**
-     * method used to get reachable tiles from a certain position on the map
-     * @param position position from which to search
+     * method used to get reachable tiles attackerPosition a certain position on the map
+     * @param position position attackerPosition which to search
      * @return list of all reachable tiles
      */
     public List<Position> getReachableTiles(Position position) {
@@ -140,7 +141,7 @@ public class Game {
             return Collections.emptyList();
         }
 
-        String unitType = unit.getUnitType();
+        String unitType = unit.getUnitType().toString();
 
         if (unitType.equals("Tank")) {
             maxCost = 6;
@@ -230,7 +231,8 @@ public class Game {
 
     public void selectTile(Position position) {
         this.selectedTilePos = new Position(position.getX(), position.getY());
-        if (map[position.getY()][position.getX()].getUnit() != null) {
+        Unit selectedUnit = map[position.getX()][position.getY()].getUnit();
+        if (selectedUnit != null) {
             this.currentReachable = getReachableTiles(position);
             notifyObservers(new SelectEvent(position, currentReachable, true));
         } else {
@@ -245,36 +247,40 @@ public class Game {
         Unit unit = map[position.getY()][position.getX()].getUnit();
 
         if (selectedUnit != null) {
-            if (unit != null) {
+            if (unit != null && !selectedUnit.getHasAttacked()) {
                 actions.add(Actions.ATTACK);
             } else {
                 actions.add(Actions.MOVE);
 
-                if (terrain instanceof Capturable && ((Capturable) terrain).getOwner() != this.activePlayer) {
+                if (terrain instanceof Capturable && ((Capturable) terrain).getOwner() != this.activePlayer && position == selectedUnit.getPosition() && selectedUnit.canCapture()) {
                     actions.add(Actions.CAPTURE);
                 }
             }
+
+            if (currentReachable.contains(position)) {
+                notifyObservers(new ActionMenuEvent(position, actions));
+            }
+            return;
         }
 
-        if (currentReachable.contains(position)) {
-            notifyObservers(new ActionMenuEvent(position, actions));
+        if (terrain.spawnsUnits()) {
+            actions.add(Actions.BUILD);
+        }
+
+        notifyObservers(new ActionMenuEvent(position, actions));
+    }
+
+    public void handleAttack(Position target) {
+        Unit attackingUnit = map[this.selectedTilePos.getY()][this.selectedTilePos.getX()].getUnit();
+        Unit targetUnit = map[target.getY()][target.getX()].getUnit();
+
+        if (attackingUnit != null && targetUnit != null) {
+            attack(attackingUnit, targetUnit);
         }
     }
 
-    public void handleInput(int r, int c, MouseButton button) {
-        Position clickedPos = new Position(r, c);
-
-        if (button == MouseButton.PRIMARY && map[r][c].getUnit() != null) {
-            this.selectedUnitPos = new Position(r, c);
-            this.currentReachable = getReachableTiles(clickedPos);
-            notifyObservers(new SelectEvent(clickedPos, currentReachable, true));
-        } else if (button == MouseButton.SECONDARY && selectedUnitPos != null) {
-            if (currentReachable.contains(clickedPos)) {
-                notifyObservers(new ActionMenuEvent(clickedPos));
-            } else {
-                cancelSelection();
-            }
-        }
+    public void handleCapture(Position position) {
+        //TODO
     }
 
     private void cancelSelection() {
@@ -287,5 +293,25 @@ public class Game {
         if (moveUnit(selectedTilePos, position)) {
             notifyObservers(new MoveEvent(selectedTilePos, position));
         }
+    }
+
+    public void attack(Unit attacker, Unit defender) {
+        Position defenderPosition = defender.getPosition();
+        Position attackerPosition = attacker.getPosition();
+
+        Terrain defenderTerrain = map[defenderPosition.getY()][defenderPosition.getX()].getTerrain();
+        Integer attackDamage = CombatService.calculateDamage(attacker, defender, defenderTerrain);
+
+        defender.takeDamage(attackDamage);
+
+        if (defender.getHealth() > 0) {
+
+            Terrain attackerTerrain = map[attackerPosition.getY()][attackerPosition.getX()].getTerrain();
+            Integer counterAttackDamage = CombatService.calculateDamage(defender, attacker, attackerTerrain);
+
+            attacker.takeDamage(counterAttackDamage);
+        }
+
+        notifyObservers(new AttackEvent(attackerPosition, defenderPosition, attacker.getHealth(), defender.getHealth()));
     }
 }

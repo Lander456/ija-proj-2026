@@ -15,7 +15,21 @@ public class GameObserver implements tool.gameObserver.GameObserver {
     public void update(GameEvent event) {
         switch (event) {
             case AttackEvent e -> {
-                break;
+                if (e.attackerHealth() < 0) {
+                    view.removeSprite(e.attackerPosition());
+                }
+
+                if (e.defenderHealth() < 0) {
+                    view.removeSprite(e.defenderPosition());
+                }
+
+                if (e.defenderHealth() < 100) {
+                    view.updateUnitHealth(e.defenderPosition(), e.defenderHealth());
+                }
+
+                if (e.attackerHealth() < 100) {
+                    view.updateUnitHealth(e.attackerPosition(), e.attackerHealth());
+                }
             }
 
             case BuildEvent e -> {
@@ -39,7 +53,7 @@ public class GameObserver implements tool.gameObserver.GameObserver {
             }
 
             case ActionMenuEvent e -> {
-                view.showActionMenu(e.getPosition());
+                view.showActionMenu(e.getPosition(), e.getActions());
             }
 
             case null, default ->  {

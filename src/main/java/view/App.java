@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
+import tool.gameController.gameControllerImpl.GameController;
 
 public class App extends Application {
 
@@ -20,6 +21,10 @@ public class App extends Application {
         Game gameLogic = GameLoader.fromJson("/mapDef/alaraRange.json");
 
         GameView gameView = new GameView(gameLogic);
+
+        GameController gameController = new GameController(gameLogic, gameView);
+
+        gameView.setController(gameController);
 
         ScrollPane root = new ScrollPane(gameView);
 
