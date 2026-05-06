@@ -74,7 +74,7 @@ public class GameView extends GridPane {
                 final int finalR = r;
                 final int finalC = c;
                 tilePane.setOnMouseClicked(event -> {
-                    onTileClicked(new Position(finalR, finalC), event);
+                    onTileClicked(new Position(finalC, finalR), event);
                 });
 
                 this.add(tilePane, c, r);
@@ -96,7 +96,7 @@ public class GameView extends GridPane {
 
     public void highlightReachableTiles(List<Position> positions) {
         for  (Position p : positions) {
-            StackPane tilePane = getTilePane(p.getX(), p.getY());
+            StackPane tilePane = getTilePane(p.getY(), p.getX());
 
             if (tilePane != null) {
                 Rectangle highlight = new Rectangle(TILE_SIZE, TILE_SIZE);
@@ -163,23 +163,23 @@ public class GameView extends GridPane {
             menu.getItems().add(cancel);
         }
 
-        StackPane tilePane = getTilePane(position.getX(), position.getY());
+        StackPane tilePane = getTilePane(position.getY(), position.getX());
 
         menu.show(tilePane, Side.RIGHT, 0, 0);
     }
 
     public void moveUnitSprite(Position startPosition, Position endPosition) {
-        StackPane startPane = getTilePane(startPosition.getX(), startPosition.getY());
-        StackPane endPane = getTilePane(endPosition.getX(), endPosition.getY());
+        StackPane startPane = getTilePane(startPosition.getY(), startPosition.getX());
+        StackPane endPane = getTilePane(endPosition.getY(), endPosition.getX());
 
         if (startPane != null && endPane != null) {
             Node unitNode = null;
             Node healthNode = null;
             for (Node node : startPane.getChildren()) {
-                if (node.getId().equals("unit")) {
+                if ("unit".equals(node.getId())) {
                     unitNode = node;
                 }
-                if (node.getId().equals("health")) {
+                if ("health".equals(node.getId())) {
                     healthNode = node;
                 }
             }
@@ -197,27 +197,11 @@ public class GameView extends GridPane {
     }
 
     public void removeSprite(Position position) {
-        StackPane tilePane = getTilePane(position.getX(), position.getY());
-        Node unitNode = null;
-        Node healthNode = null;
+        StackPane tilePane = getTilePane(position.getY(), position.getX());
 
-        if (tilePane != null) {
-            for (Node node : tilePane.getChildren()) {
-                if (node.getId().equals("unit")) {
-                    unitNode = node;
-                }
-                if (node.getId().equals("health")) {
-                    healthNode = node;
-                }
-            }
-        }
-
-        if (unitNode != null) {
-            tilePane.getChildren().remove(unitNode);
-        }
-        if (healthNode != null) {
-            tilePane.getChildren().remove(healthNode);
-        }
+        tilePane.getChildren().removeIf(node ->
+                "unit".equals(node.getId()) || "health".equals(node.getId())
+        );
     }
 
     public void updateUnitHealth(Position position, Integer unitHealth) {
@@ -233,7 +217,7 @@ public class GameView extends GridPane {
         healthLabel.setTranslateX(-2);
         healthLabel.setTranslateY(-2);
 
-        tilePane.getChildren().removeIf(node -> node.getId().equals("health"));
+        tilePane.getChildren().removeIf(node -> "health".equals(node.getId()));
 
         tilePane.getChildren().add(healthLabel);
     }
@@ -246,7 +230,8 @@ public class GameView extends GridPane {
 
             healthLabel.setId("health");
             healthLabel.setTextFill(Color.WHITE);
-            healthLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px; -fx-effect: dropshadow(one-pass-box, 2, 1, 0, 0);");
+            healthLabel.setMouseTransparent(true);
+            healthLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 10px; -fx-effect: dropshadow(one-pass-box, black, 2, 1, 0, 0);");
 
             return healthLabel;
         }

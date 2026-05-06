@@ -8,6 +8,12 @@ public class Tank extends Unit {
     public static final UnitTypes unitType = UnitTypes.Tank;
 
     @Override
+    public Integer minAttackRange() {return 1;}
+
+    @Override
+    public Integer maxAttackRange() {return 1;}
+
+    @Override
     public Integer movementRange() {
         return 6;
     }

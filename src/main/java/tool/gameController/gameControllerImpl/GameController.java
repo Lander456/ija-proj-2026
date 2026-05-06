@@ -19,6 +19,8 @@ public class GameController implements tool.gameController.GameController {
     public void handleClick(Position position, MouseButton button) {
         if (button == MouseButton.PRIMARY) {
             game.selectTile(position);
+        } else if (button == MouseButton.SECONDARY) {
+            game.handleActionMenu(position);
         }
     }
 

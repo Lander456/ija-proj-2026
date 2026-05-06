@@ -23,11 +23,11 @@ public class GameObserver implements tool.gameObserver.GameObserver {
                     view.removeSprite(e.defenderPosition());
                 }
 
-                if (e.defenderHealth() < 100) {
+                if (e.defenderHealth() < 100 && e.defenderHealth() > 0) {
                     view.updateUnitHealth(e.defenderPosition(), e.defenderHealth());
                 }
 
-                if (e.attackerHealth() < 100) {
+                if (e.attackerHealth() < 100 && e.attackerHealth() > 0) {
                     view.updateUnitHealth(e.attackerPosition(), e.attackerHealth());
                 }
             }

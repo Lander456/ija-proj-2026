@@ -19,6 +19,16 @@ public class Artillery extends Unit {
     }
 
     @Override
+    public Integer minAttackRange() {
+        return 2;
+    }
+
+    @Override
+    public Integer maxAttackRange() {
+        return 3;
+    }
+
+    @Override
     public Integer cost() {
         return 6000;
     }

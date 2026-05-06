@@ -1,6 +1,7 @@
 package game;
 
 import common.enums.Actions;
+import common.enums.MovementTypes;
 import common.enums.Players;
 import common.gameEvents.GameEvent;
 import common.gameEvents.eventTypes.ActionMenuEvent;
@@ -86,12 +87,12 @@ public class Game {
      */
     public boolean moveUnit(Position startPosition, Position destination) {
         if (getReachableTiles(startPosition).contains(destination)) {
-            Unit movedUnit = map[startPosition.getX()][startPosition.getY()].getUnit();
+            Unit movedUnit = map[startPosition.getY()][startPosition.getX()].getUnit();
 
             if (movedUnit == null) return false;
 
-            map[destination.getX()][destination.getY()].setUnit(movedUnit);
-            map[startPosition.getX()][startPosition.getY()].setUnit(null);
+            map[destination.getY()][destination.getX()].setUnit(movedUnit);
+            map[startPosition.getY()][startPosition.getX()].setUnit(null);
 
             movedUnit.setPosition(destination);
             movedUnit.setHasMoved(true);
@@ -134,24 +135,15 @@ public class Game {
         int maxCost;
         boolean isWheeled;
 
-        var tile = map[position.getX()][position.getY()];
+        var tile = map[position.getY()][position.getX()];
         var unit = tile.getUnit();
 
         if (unit == null) {
             return Collections.emptyList();
         }
 
-        String unitType = unit.getUnitType().toString();
-
-        if (unitType.equals("Tank")) {
-            maxCost = 6;
-            isWheeled = true;
-        } else if (unitType.equals("Infantry")) {
-            maxCost = 3;
-            isWheeled = false;
-        } else {
-            return Collections.emptyList();  // no unit on given position
-        }
+        maxCost = unit.movementRange();
+        isWheeled = unit.movementType() == MovementTypes.WHEELS;
 
         // DIJKSTRA
         int[][] directions = {
@@ -171,7 +163,7 @@ public class Game {
             }
         }
 
-        distance[position.getX()][position.getY()] = 0;
+        distance[position.getY()][position.getX()] = 0;
 
         PriorityQueue<Node> pq = new PriorityQueue<>(Comparator.comparingInt(n -> n.getCost()));
         pq.add(new Node(position, 0));  // add starting position
@@ -179,8 +171,8 @@ public class Game {
         while (!pq.isEmpty()) {
             Node currentNode = pq.poll();
 
-            int r = currentNode.getPosition().getX();
-            int c = currentNode.getPosition().getY();
+            int r = currentNode.getPosition().getY();
+            int c = currentNode.getPosition().getX();
 
             if (currentNode.getCost() > distance[r][c]) continue;
 
@@ -200,7 +192,7 @@ public class Game {
 
                     if (newCost < distance[newRow][newCol] && newCost <= maxCost) {
                         distance[newRow][newCol] = newCost;
-                        pq.add(new Node(new Position(newRow, newCol), newCost));
+                        pq.add(new Node(new Position(newCol, newRow), newCost));
                     }
                 }
             }
@@ -210,8 +202,8 @@ public class Game {
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 if (distance[r][c] <= maxCost && distance[r][c] != Integer.MAX_VALUE
-                        && !(r == position.getX() && c == position.getY())) {
-                    reachableTiles.add(new Position(r,c));
+                        && !(r == position.getY() && c == position.getX())) {
+                    reachableTiles.add(new Position(c,r));
                 }
             }
         }
@@ -231,23 +223,27 @@ public class Game {
 
     public void selectTile(Position position) {
         this.selectedTilePos = new Position(position.getX(), position.getY());
-        Unit selectedUnit = map[position.getX()][position.getY()].getUnit();
+        Unit selectedUnit = map[position.getY()][position.getX()].getUnit();
         if (selectedUnit != null) {
             this.currentReachable = getReachableTiles(position);
             notifyObservers(new SelectEvent(position, currentReachable, true));
         } else {
-            this.currentReachable = null;
+            cancelSelection();
         }
     }
 
     public void handleActionMenu(Position position) {
+        if (this.selectedTilePos == null) {
+            return;
+        }
+
         List<Actions> actions = new ArrayList<>();
         Terrain terrain = map[position.getY()][position.getX()].getTerrain();
         Unit selectedUnit = map[this.selectedTilePos.getY()][this.selectedTilePos.getX()].getUnit();
         Unit unit = map[position.getY()][position.getX()].getUnit();
 
         if (selectedUnit != null) {
-            if (unit != null && !selectedUnit.getHasAttacked()) {
+            if (unit != null && getAttackReach(selectedTilePos, selectedUnit.minAttackRange(), selectedUnit.maxAttackRange()).contains(position)) {
                 actions.add(Actions.ATTACK);
             } else {
                 actions.add(Actions.MOVE);
@@ -299,19 +295,51 @@ public class Game {
         Position defenderPosition = defender.getPosition();
         Position attackerPosition = attacker.getPosition();
 
+        System.out.println("Attacker: " + attacker.getUnitType().toString() + " " + attackerPosition.getX() + " " + attackerPosition.getY());
+        System.out.println("Defender: " + defender.getUnitType().toString() + " " + defenderPosition.getX() + " " + defenderPosition.getY());
+
         Terrain defenderTerrain = map[defenderPosition.getY()][defenderPosition.getX()].getTerrain();
         Integer attackDamage = CombatService.calculateDamage(attacker, defender, defenderTerrain);
 
         defender.takeDamage(attackDamage);
 
         if (defender.getHealth() > 0) {
+            if (getAttackReach(defenderPosition, defender.minAttackRange(), defender.maxAttackRange()).contains(attackerPosition)) {
+                Terrain attackerTerrain = map[attackerPosition.getY()][attackerPosition.getX()].getTerrain();
+                Integer counterAttackDamage = CombatService.calculateDamage(defender, attacker, attackerTerrain);
 
-            Terrain attackerTerrain = map[attackerPosition.getY()][attackerPosition.getX()].getTerrain();
-            Integer counterAttackDamage = CombatService.calculateDamage(defender, attacker, attackerTerrain);
+                attacker.takeDamage(counterAttackDamage);
 
-            attacker.takeDamage(counterAttackDamage);
+                if (attacker.getHealth() < 0) {
+                    map[attackerPosition.getY()][attackerPosition.getX()].setUnit(null);
+                }
+            }
+        } else {
+            map[defenderPosition.getY()][defenderPosition.getX()].setUnit(null);
         }
 
         notifyObservers(new AttackEvent(attackerPosition, defenderPosition, attacker.getHealth(), defender.getHealth()));
+    }
+
+    private List<Position> getAttackReach(Position from, Integer minRange, Integer maxRange) {
+        List<Position> targets = new ArrayList<>();
+
+        for (int r = -maxRange; r <= maxRange; r++) {
+            int maxC = maxRange - Math.abs(r);
+
+            for (int c = -maxC; c <= maxC; c++) {
+                int currentDistance = Math.abs(r) + Math.abs(c);
+
+                if (currentDistance >= minRange && currentDistance <= maxRange) {
+                    int targetX = from.getX() + c;
+                    int targetY = from.getY() + r;
+
+                    if (targetX >= 0 && targetX < map[0].length && targetY >= 0 && targetY < map.length) {
+                        targets.add(new Position(targetX, targetY));
+                    }
+                }
+            }
+        }
+        return targets;
     }
 }

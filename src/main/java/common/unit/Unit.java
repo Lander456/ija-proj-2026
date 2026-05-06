@@ -17,6 +17,10 @@ public abstract class Unit {
 
     public abstract MovementTypes movementType();
 
+    public abstract Integer minAttackRange();
+
+    public abstract Integer maxAttackRange();
+
     public abstract Integer cost();
 
     public abstract UnitTypes getUnitType();

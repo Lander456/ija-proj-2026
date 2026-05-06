@@ -18,6 +18,16 @@ public class Infantry extends Unit {
     }
 
     @Override
+    public Integer minAttackRange() {
+        return 1;
+    }
+
+    @Override
+    public Integer maxAttackRange() {
+        return 1;
+    }
+
+    @Override
     public Integer cost() {
         return 1000;
     }
