@@ -36,8 +36,13 @@ public class App extends Application {
         StackPane.setMargin(passTurnBtn, new Insets(20));
         StackPane.setAlignment(passTurnBtn, Pos.BOTTOM_RIGHT);
 
+        FundsDisplay fundsDisplay = new FundsDisplay();
+        StackPane.setAlignment(fundsDisplay, Pos.TOP_LEFT);
+
+        gameView.setFundsDisplay(fundsDisplay);
+
         StackPane root = new StackPane();
-        root.getChildren().addAll(scrollMap, turnOverlay, passTurnBtn);
+        root.getChildren().addAll(scrollMap, turnOverlay, passTurnBtn, fundsDisplay);
 
         Scene scene = new Scene(root, 800, 600);
 

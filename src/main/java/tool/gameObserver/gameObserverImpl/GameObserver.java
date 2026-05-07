@@ -60,6 +60,10 @@ public class GameObserver implements tool.gameObserver.GameObserver {
                 view.turnChange(e.side(), e.finances());
             }
 
+            case FundsUpdateEvent e -> {
+                view.updateFundsDisplay(e.amount());
+            }
+
             case null, default ->  {
                 break;
             }

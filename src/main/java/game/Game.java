@@ -231,7 +231,8 @@ public class Game {
         if (x >= 0 && x < map[0].length && y >= 0 && y < map.length) {
             String terrainType = map[y][x].getTerrain().getTerrainCode();
             map[y][x] = new Tile(terrainType, player);
-            if (Objects.equals(player, Players.RED.toString())) {
+            System.out.println("Player " + player);
+            if (Players.fromString(player).equals(Players.RED)) {
                 bluePlayer.removeProperty((Capturable) map[y][x].getTerrain());
                 redPlayer.addProperty((Capturable) map[y][x].getTerrain());
             } else {
@@ -292,12 +293,15 @@ public class Game {
         Capturable capturable = (Capturable) map[position.getY()][position.getX()].getTerrain();
         Players oldController = capturable.getOwner();
         Unit unit = map[position.getY()][position.getX()].getUnit();
+        Player inactivePlayer = (activePlayer == redPlayer) ? bluePlayer : redPlayer;
 
         capturable.capture(unit);
         unit.setHasMoved(true);
         unit.setHasAttacked(true);
 
         if (oldController != capturable.getOwner()) {
+            activePlayer.addProperty(capturable);
+            inactivePlayer.removeProperty(capturable);
             notifyObservers(new CaptureEvent(position, capturable.getOwner()));
         }
     }
@@ -375,9 +379,12 @@ public class Game {
     public void endTurn() {
         this.selectedTilePos = null;
         this.currentReachable.clear();
+        activePlayer.endTurn();
+        System.out.println("ActivePlayer = " + activePlayer.getSide() + " player funds: " + activePlayer.getFunds());
 
         activePlayer = (activePlayer == bluePlayer) ? redPlayer : bluePlayer;
         activePlayer.startTurn();
+        notifyObservers(new FundsUpdateEvent(activePlayer.getFunds()));
         notifyObservers(new TurnChangeEvent(activePlayer.getSide(), activePlayer.getFunds()));
     }
 
@@ -385,6 +392,7 @@ public class Game {
         int unitCost = UnitRegistry.getCost(unitType);
         if (unitCost <= activePlayer.getFunds()) {
             activePlayer.spendFunds(unitCost);
+            notifyObservers(new FundsUpdateEvent(activePlayer.getFunds()));
             Unit createdUnit = createUnit(unitType.toString(), activePlayer.getSide().toString(), position.getX(), position.getY());
             createdUnit.setHasAttacked(true);
             createdUnit.setHasMoved(true);

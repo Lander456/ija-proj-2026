@@ -34,6 +34,11 @@ public class GameView extends GridPane {
     private final int TILE_SIZE = 32;
     private GameController controller;
     private TurnOverlay turnOverlay;
+    private FundsDisplay fundsDisplay;
+
+    public void setFundsDisplay(FundsDisplay fundsDisplay) {
+        this.fundsDisplay = fundsDisplay;
+    }
 
     public GameView(Game game) {
         this.game = game;
@@ -309,6 +314,10 @@ public class GameView extends GridPane {
 
             tilePane.getChildren().addFirst(terrainView);
         }
+    }
+
+    public void updateFundsDisplay(int amount) {
+        fundsDisplay.updateFunds(amount);
     }
 
     public void setController(GameController controller) {

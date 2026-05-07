@@ -21,8 +21,12 @@ public class Player {
         this.color = (side == Players.RED) ? Color.RED : Color.BLUE;
     }
 
-    public void startTurn() {
+    public void endTurn() {
+        System.out.println(this.properties);
         this.funds += this.properties.stream().mapToInt(Capturable::getIncome).sum();
+    }
+
+    public void startTurn() {
         for (Unit u : this.units) {
             u.setHasAttacked(false);
             u.setHasMoved(false);
