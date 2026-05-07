@@ -1,6 +1,8 @@
 package tool.gameController.gameControllerImpl;
 
 import common.Position;
+import common.enums.UnitTypes;
+import common.tile.Tile;
 import game.Game;
 import javafx.scene.input.MouseButton;
 import view.GameView;
@@ -30,5 +32,22 @@ public class GameController implements tool.gameController.GameController {
 
     public void attack(Position targetPosition) {
         game.handleAttack(targetPosition);
+    }
+
+    public void endTurn() {
+        game.endTurn();
+    }
+
+    public void capture(Position position) {
+        game.handleCapture(position);
+    }
+
+    public String getTileType(Position position) {
+        Tile[][] map = game.getMap();
+        return map[position.getY()][position.getX()].getTerrain().getTerrainType();
+    }
+
+    public void buildUnit(Position position, UnitTypes unitType) {
+        game.buildUnit(position, unitType);
     }
 }

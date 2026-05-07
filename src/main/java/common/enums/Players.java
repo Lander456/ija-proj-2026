@@ -10,7 +10,7 @@ public enum Players {
 
     public static Players fromString(String text) {
         for (Players p : Players.values()) {
-            if (p.label.equalsIgnoreCase(text)) {
+            if (p.label.equalsIgnoreCase(text) || p.toString().equalsIgnoreCase(text)) {
                 return p;
             }
         }

@@ -8,8 +8,8 @@ import common.enums.UnitTypes;
 
 public abstract class Unit {
     private Integer health = 100;
-    private Boolean hasMoved = true;
-    private Boolean hasAttacked = true;
+    private Boolean hasMoved = false;
+    private Boolean hasAttacked = false;
     private Position position;
     private final Players ownedBy;
 

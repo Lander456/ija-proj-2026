@@ -33,11 +33,11 @@ public class GameObserver implements tool.gameObserver.GameObserver {
             }
 
             case BuildEvent e -> {
-                break;
+                view.addUnitSprite(e.position(), e.unit());
             }
 
             case CaptureEvent e -> {
-                break;
+                view.updateTerrainSprite(e.capturableTile(), e.capturer());
             }
 
             case MoveEvent e -> {
@@ -54,6 +54,10 @@ public class GameObserver implements tool.gameObserver.GameObserver {
 
             case ActionMenuEvent e -> {
                 view.showActionMenu(e.getPosition(), e.getActions());
+            }
+
+            case TurnChangeEvent e -> {
+                view.turnChange(e.side(), e.finances());
             }
 
             case null, default ->  {

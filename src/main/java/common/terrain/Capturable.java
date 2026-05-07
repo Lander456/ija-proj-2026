@@ -24,6 +24,7 @@ public abstract class Capturable extends Terrain{
 
         if (resistance <= 0) {
             this.setOwner(capturingUnit.getOwnedBy());
+            this.setResistance(20);
         }
     }
 

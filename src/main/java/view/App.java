@@ -3,8 +3,12 @@ package view;
 import game.Game;
 import io.GameLoader;
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import tool.gameController.gameControllerImpl.GameController;
 
@@ -12,21 +16,28 @@ public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        String[] mockMap = {
-                "P P M",
-                "P F W",
-                "P P P"
-        };
-
         Game gameLogic = GameLoader.fromJson("/mapDef/alaraRange.json");
-
         GameView gameView = new GameView(gameLogic);
-
         GameController gameController = new GameController(gameLogic, gameView);
 
         gameView.setController(gameController);
 
-        ScrollPane root = new ScrollPane(gameView);
+        ScrollPane scrollMap = new ScrollPane(gameView);
+        scrollMap.setPannable(true);
+
+        TurnOverlay turnOverlay = new TurnOverlay();
+        gameView.setTurnOverlay(turnOverlay);
+
+        Button passTurnBtn = new Button("End turn");
+        passTurnBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        passTurnBtn.setOnAction(e -> gameController.endTurn());
+
+        StackPane.setMargin(passTurnBtn, new Insets(20));
+        StackPane.setAlignment(passTurnBtn, Pos.BOTTOM_RIGHT);
+
+        StackPane root = new StackPane();
+        root.getChildren().addAll(scrollMap, turnOverlay, passTurnBtn);
 
         Scene scene = new Scene(root, 800, 600);
 

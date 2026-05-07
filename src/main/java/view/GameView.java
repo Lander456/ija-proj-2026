@@ -2,6 +2,8 @@ package view;
 
 import common.Position;
 import common.enums.Actions;
+import common.enums.Players;
+import common.enums.UnitTypes;
 import common.terrain.Capturable;
 import common.terrain.Terrain;
 import common.tile.Tile;
@@ -12,6 +14,7 @@ import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
@@ -30,6 +33,7 @@ public class GameView extends GridPane {
     private final GameObserver observer;
     private final int TILE_SIZE = 32;
     private GameController controller;
+    private TurnOverlay turnOverlay;
 
     public GameView(Game game) {
         this.game = game;
@@ -37,6 +41,10 @@ public class GameView extends GridPane {
 
         this.game.addObserver(this.observer);
         initialRender();
+    }
+
+    public void setTurnOverlay(TurnOverlay turnOverlay) {
+        this.turnOverlay = turnOverlay;
     }
 
     private void initialRender() {
@@ -51,7 +59,6 @@ public class GameView extends GridPane {
                 Image terrainImg;
 
                 if (terrain instanceof Capturable) {
-                    System.out.println("owner: " + ((Capturable) terrain).getOwner());
                     terrainImg = AssetManager.getSprite(terrain.getTerrainType(), ((Capturable) terrain).getOwner());
                 } else {
                     terrainImg = AssetManager.getSprite(terrain.getTerrainType());
@@ -80,6 +87,15 @@ public class GameView extends GridPane {
                 this.add(tilePane, c, r);
             }
         }
+    }
+
+    public void addUnitSprite(Position position, Unit unit) {
+        StackPane tilePane = getTilePane(position.getY(), position.getX());
+        Image unitImg = AssetManager.getSprite(unit.getUnitType().toString(), unit.getOwnedBy());
+
+        ImageView unitView = createImageView(unitImg, TILE_SIZE);
+        unitView.setId("unit");
+        tilePane.getChildren().add(unitView);
     }
 
     private ImageView createImageView(Image img, int size) {
@@ -151,6 +167,38 @@ public class GameView extends GridPane {
                         controller.attack(position);
                     });
                     menu.getItems().add(attack);
+                }
+
+                case CAPTURE -> {
+                    MenuItem capture = new MenuItem("Capture");
+                    capture.setOnAction(event -> {
+                        controller.capture(position);
+                        clearHighlights();
+                    });
+                    menu.getItems().add(capture);
+                }
+
+                case BUILD -> {
+                    Menu build = new Menu("Build");
+                    MenuItem buildInfantry = new MenuItem(UnitTypes.Infantry.toString());
+                    MenuItem buildTank = new MenuItem(UnitTypes.Tank.toString());
+                    MenuItem buildArtillery = new MenuItem(UnitTypes.Artillery.toString());
+
+                    buildInfantry.setOnAction(event -> {
+                        controller.buildUnit(position, UnitTypes.Infantry);
+                    });
+
+                    buildArtillery.setOnAction(event -> {
+                        controller.buildUnit(position, UnitTypes.Artillery);
+                    });
+
+                    buildTank.setOnAction(event -> {
+                        controller.buildUnit(position, UnitTypes.Tank);
+                    });
+
+                    build.getItems().addAll(buildInfantry, buildTank, buildArtillery);
+
+                    menu.getItems().add(build);
                 }
             }
         }
@@ -237,6 +285,30 @@ public class GameView extends GridPane {
         }
 
         return null;
+    }
+
+    public void turnChange(Players player, int funds) {
+        if (turnOverlay != null) {
+            Color color = (player == Players.RED) ? Color.RED : Color.BLUE;
+
+            turnOverlay.showTurn(player.toString(), color);
+        }
+    }
+
+    public void updateTerrainSprite(Position position, Players owner) {
+        StackPane tilePane = getTilePane(position.getY(), position.getX());
+        String terrainType = controller.getTileType(position);
+
+        if (tilePane != null) {
+            Image newTerrainImg = AssetManager.getSprite(terrainType, owner);
+
+            tilePane.getChildren().removeIf(node -> "terrain".equals(node.getId()));
+
+            ImageView terrainView = createImageView(newTerrainImg, TILE_SIZE);
+            terrainView.setId("terrain");
+
+            tilePane.getChildren().addFirst(terrainView);
+        }
     }
 
     public void setController(GameController controller) {
