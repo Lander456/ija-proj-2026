@@ -1,7 +1,6 @@
 package common.gameActions.gameActionsImpl;
 
 import common.Position;
-import common.enums.UnitTypes;
 import common.gameActions.GameAction;
 import common.unit.Unit;
 import game.Game;
