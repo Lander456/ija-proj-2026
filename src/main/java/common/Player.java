@@ -23,7 +23,7 @@ public class Player {
 
     public void endTurn() {
         System.out.println(this.properties);
-        this.funds += this.properties.stream().mapToInt(Capturable::getIncome).sum();
+        addFunds(this.properties.stream().mapToInt(Capturable::getIncome).sum());
     }
 
     public void startTurn() {
@@ -50,4 +50,5 @@ public class Player {
     public void spendFunds(int amount) {
         this.funds -= amount;
     }
+    public void addFunds(int amount) { this.funds += amount; }
 }

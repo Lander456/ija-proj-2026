@@ -33,12 +33,14 @@ public class GameObserver implements tool.gameObserver.GameObserver {
             }
 
             case BuildEvent e -> {
+                Integer unitHealth = e.unit().getHealth();
                 view.addUnitSprite(e.position(), e.unit());
+                if (unitHealth < 100) {
+                    view.updateUnitHealth(e.position(), unitHealth);
+                }
             }
 
-            case CaptureEvent e -> {
-                view.updateTerrainSprite(e.capturableTile(), e.capturer());
-            }
+            case CaptureEvent e -> view.updateTerrainSprite(e.capturableTile(), e.capturer());
 
             case MoveEvent e -> {
                 view.clearHighlights();
@@ -52,17 +54,13 @@ public class GameObserver implements tool.gameObserver.GameObserver {
                 }
             }
 
-            case ActionMenuEvent e -> {
-                view.showActionMenu(e.getPosition(), e.getActions());
-            }
+            case ActionMenuEvent e -> view.showActionMenu(e.getPosition(), e.getActions());
 
-            case TurnChangeEvent e -> {
-                view.turnChange(e.side(), e.finances());
-            }
+            case TurnChangeEvent e -> view.turnChange(e.side(), e.finances());
 
-            case FundsUpdateEvent e -> {
-                view.updateFundsDisplay(e.amount());
-            }
+            case FundsUpdateEvent e -> view.updateFundsDisplay(e.amount());
+
+            case DeleteUnitEvent e -> view.removeSprite(e.position());
 
             case null, default ->  {
                 break;

@@ -1,0 +1,40 @@
+package common.gameActions.gameActionsImpl;
+
+import common.Position;
+import common.enums.Players;
+import common.gameActions.GameAction;
+import common.terrain.Capturable;
+import common.unit.Unit;
+import game.Game;
+
+public class CaptureAction implements GameAction {
+    private final Game game;
+    private final Position position;
+    private final Unit capturingUnit;
+    private final Players prevOwner;
+    private final Integer prevResistance;
+    private Boolean ownershipChanged;
+
+    public CaptureAction(Game game, Position position, Unit capturingUnit, Players prevOwner, Integer prevResistance) {
+        this.game = game;
+        this.position = position;
+        this.capturingUnit = capturingUnit;
+        this.prevOwner = prevOwner;
+        this.prevResistance = prevResistance;
+
+    }
+        @Override
+        public void execute() {
+            this.ownershipChanged = game.captureTile(position, capturingUnit);
+        }
+
+        @Override
+        public void undo() {
+            Capturable capturable = (Capturable) game.getTile(position).getTerrain();
+
+            if (ownershipChanged) {
+                capturable.
+            }
+        }
+    }
+}

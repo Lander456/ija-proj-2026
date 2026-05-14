@@ -5,6 +5,9 @@ import common.enums.Actions;
 import common.enums.MovementTypes;
 import common.enums.Players;
 import common.enums.UnitTypes;
+import common.gameActions.gameActionsImpl.AttackAction;
+import common.gameActions.gameActionsImpl.BuildAction;
+import common.gameActions.gameActionsImpl.MoveAction;
 import common.gameEvents.GameEvent;
 import common.gameEvents.eventTypes.*;
 import common.Position;
@@ -30,6 +33,7 @@ public class Game {
     private Player redPlayer;
     private Player activePlayer;
 
+    private final Journal gameJournal = new Journal();
     private final Tile[][] map;
     private final List<GameObserver> observers = new ArrayList<>();
     private Position selectedTilePos = null;
@@ -99,11 +103,8 @@ public class Game {
      * @return boolean indicating whether the unit has moved successfully
      * @author Tadeas Topinka (xtopint00)
      */
-    public boolean moveUnit(Position startPosition, Position destination) {
+    public void moveUnit(Position startPosition, Position destination, Unit movedUnit) {
         if (getReachableTiles(startPosition).contains(destination)) {
-            Unit movedUnit = map[startPosition.getY()][startPosition.getX()].getUnit();
-
-            if (movedUnit == null) return false;
 
             map[destination.getY()][destination.getX()].setUnit(movedUnit);
             map[startPosition.getY()][startPosition.getX()].setUnit(null);
@@ -111,11 +112,12 @@ public class Game {
             movedUnit.setPosition(destination);
             movedUnit.setHasMoved(true);
 
-            notifyObservers(new MoveEvent(startPosition, destination));
+            if (movedUnit.getUnitType() == UnitTypes.Artillery) {
+                movedUnit.setHasAttacked(true);
+            }
 
-            return true;
+            notifyObservers(new MoveEvent(startPosition, destination));
         }
-        return false;
     }
 
     /**
@@ -273,7 +275,7 @@ public class Game {
             }
         }
 
-        if (terrain.spawnsUnits() && unit == null) {
+        if (terrain.spawnsUnits() && unit == null && ((Capturable) terrain).getOwner() == this.activePlayer.getSide()) {
             actions.add(Actions.BUILD);
         }
 
@@ -285,7 +287,7 @@ public class Game {
         Unit targetUnit = map[target.getY()][target.getX()].getUnit();
 
         if (attackingUnit != null && targetUnit != null) {
-            attack(attackingUnit, targetUnit);
+            gameJournal.addAndExecute(new AttackAction(this, attackingUnit, targetUnit, attackingUnit.getHealth(), targetUnit.getHealth()));
         }
     }
 
@@ -306,15 +308,40 @@ public class Game {
         }
     }
 
+    public void transferProperty(Capturable property, Players oldOwner, Players newOwner) {
+        if (bluePlayer.getSide().equals(newOwner)) {
+            redPlayer.removeProperty(property);
+            bluePlayer.addProperty(property);
+        } else if (redPlayer.getSide().equals(newOwner)) {
+
+        }
+    }
+
     private void cancelSelection() {
         this.currentReachable.clear();
         notifyObservers(new SelectEvent(null, null, false));
     }
 
+    public Boolean captureTile(Position position, Unit unit) {
+
+    }
+
+    public Tile getTile(Position position) {
+        return map[position.getY()][position.getX()];
+    }
+
     public void handleMove(Position position) {
-        if (moveUnit(selectedTilePos, position)) {
-            notifyObservers(new MoveEvent(selectedTilePos, position));
+        Unit movedUnit = map[selectedTilePos.getY()][selectedTilePos.getX()].getUnit();
+        if (movedUnit == null) {
+            return;
         }
+
+        if (!getReachableTiles(selectedTilePos).contains(position)) {
+            return;
+        }
+
+        MoveAction move = new MoveAction(this, selectedTilePos, position, movedUnit);
+        gameJournal.addAndExecute(move);
     }
 
     public void attack(Unit attacker, Unit defender) {
@@ -329,6 +356,7 @@ public class Game {
 
         defender.takeDamage(attackDamage);
         attacker.setHasAttacked(true);
+        attacker.setHasMoved(true);
 
         if (defender.getHealth() > 0) {
             if (getAttackReach(defenderPosition, defender.minAttackRange(), defender.maxAttackRange()).contains(attackerPosition)) {
@@ -389,14 +417,39 @@ public class Game {
     }
 
     public void buildUnit(Position position, UnitTypes unitType) {
+        Unit createdUnit = createUnit(unitType.toString(), activePlayer.getSide().toString(), position.getX(), position.getY());
+        createdUnit.setHasAttacked(true);
+        createdUnit.setHasMoved(true);
+        notifyObservers(new BuildEvent(position, createdUnit));
+    }
+
+    public void handleBuild(Position position, UnitTypes unitType) {
         int unitCost = UnitRegistry.getCost(unitType);
         if (unitCost <= activePlayer.getFunds()) {
-            activePlayer.spendFunds(unitCost);
-            notifyObservers(new FundsUpdateEvent(activePlayer.getFunds()));
-            Unit createdUnit = createUnit(unitType.toString(), activePlayer.getSide().toString(), position.getX(), position.getY());
-            createdUnit.setHasAttacked(true);
-            createdUnit.setHasMoved(true);
-            notifyObservers(new BuildEvent(position, createdUnit));
+            BuildAction build = new BuildAction(this, unitCost, position, unitType);
+            gameJournal.addAndExecute(build);
         }
+    }
+
+    public void removeUnit(Position position) {
+        Unit unit = map[position.getY()][position.getX()].getUnit();
+        map[position.getY()][position.getX()].setUnit(null);
+        activePlayer.deleteUnit(unit);
+        notifyObservers(new DeleteUnitEvent(position));
+    }
+
+    public void addPlayerFunds(Integer amount) {
+        activePlayer.addFunds(amount);
+        notifyObservers(new FundsUpdateEvent(activePlayer.getFunds()));
+    }
+
+    public void spendPlayerFunds(Integer amount) {
+        activePlayer.spendFunds(amount);
+        notifyObservers(new FundsUpdateEvent(activePlayer.getFunds()));
+    }
+
+    public void restoreUnit(Unit unit, Position position) {
+        map[position.getY()][position.getX()].setUnit(unit);
+        notifyObservers(new BuildEvent(position, unit));
     }
 }

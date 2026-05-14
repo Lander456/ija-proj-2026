@@ -41,6 +41,12 @@ public class Artillery extends Unit {
     @Override
     public AttackTypes attackType() { return AttackTypes.LONG_RANGE; }
 
+    @Override
+    public void setHasMoved(Boolean hasMoved) {
+        super.setHasMoved(hasMoved);
+        super.setHasAttacked(hasMoved);
+    }
+
     protected Artillery(String owningPlayer, Integer startX, Integer startY) {
         super(Players.fromString(owningPlayer), startX, startY);
     }

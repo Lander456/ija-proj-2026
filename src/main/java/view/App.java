@@ -42,7 +42,7 @@ public class App extends Application {
         gameView.setFundsDisplay(fundsDisplay);
 
         StackPane root = new StackPane();
-        root.getChildren().addAll(scrollMap, turnOverlay, passTurnBtn, fundsDisplay);
+        root.getChildren().addAll(scrollMap, fundsDisplay, turnOverlay, passTurnBtn);
 
         Scene scene = new Scene(root, 800, 600);
 

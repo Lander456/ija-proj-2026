@@ -48,6 +48,6 @@ public class GameController implements tool.gameController.GameController {
     }
 
     public void buildUnit(Position position, UnitTypes unitType) {
-        game.buildUnit(position, unitType);
+        game.handleBuild(position, unitType);
     }
 }
