@@ -21,20 +21,21 @@ public class CaptureAction implements GameAction {
         this.capturingUnit = capturingUnit;
         this.prevOwner = prevOwner;
         this.prevResistance = prevResistance;
-
     }
-        @Override
-        public void execute() {
-            this.ownershipChanged = game.captureTile(position, capturingUnit);
-        }
 
-        @Override
-        public void undo() {
-            Capturable capturable = (Capturable) game.getTile(position).getTerrain();
+    @Override
+    public void execute() {
+        this.ownershipChanged = game.captureTile(position, capturingUnit);
+    }
 
-            if (ownershipChanged) {
-                capturable.
-            }
+    @Override
+    public void undo() {
+        Capturable capturable = (Capturable) game.getTile(position).getTerrain();
+
+        capturable.setResistance(prevResistance);
+
+        if (ownershipChanged) {
+            game.transferProperty(capturable, capturable.getOwner(), prevOwner, position);
         }
     }
 }

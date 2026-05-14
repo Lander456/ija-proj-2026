@@ -7,6 +7,7 @@ import common.enums.Players;
 import common.enums.UnitTypes;
 import common.gameActions.gameActionsImpl.AttackAction;
 import common.gameActions.gameActionsImpl.BuildAction;
+import common.gameActions.gameActionsImpl.CaptureAction;
 import common.gameActions.gameActionsImpl.MoveAction;
 import common.gameEvents.GameEvent;
 import common.gameEvents.eventTypes.*;
@@ -292,29 +293,30 @@ public class Game {
     }
 
     public void handleCapture(Position position) {
-        Capturable capturable = (Capturable) map[position.getY()][position.getX()].getTerrain();
-        Players oldController = capturable.getOwner();
-        Unit unit = map[position.getY()][position.getX()].getUnit();
-        Player inactivePlayer = (activePlayer == redPlayer) ? bluePlayer : redPlayer;
+        Tile tile = map[position.getY()][position.getX()];
 
-        capturable.capture(unit);
-        unit.setHasMoved(true);
-        unit.setHasAttacked(true);
+        Capturable capturable = (Capturable) tile.getTerrain();
+        Unit unit = tile.getUnit();
 
-        if (oldController != capturable.getOwner()) {
-            activePlayer.addProperty(capturable);
-            inactivePlayer.removeProperty(capturable);
-            notifyObservers(new CaptureEvent(position, capturable.getOwner()));
-        }
+        gameJournal.addAndExecute(new CaptureAction(this, position, unit, capturable.getOwner(), capturable.getResistance()));
     }
 
-    public void transferProperty(Capturable property, Players oldOwner, Players newOwner) {
-        if (bluePlayer.getSide().equals(newOwner)) {
-            redPlayer.removeProperty(property);
-            bluePlayer.addProperty(property);
-        } else if (redPlayer.getSide().equals(newOwner)) {
+    public void transferProperty(Capturable property, Players oldOwner, Players newOwner, Position position) {
+        if (oldOwner == Players.NEUTRAL) {
+            Player newPlayerOwner = (newOwner == Players.RED) ? redPlayer : bluePlayer;
+            newPlayerOwner.addProperty(property);
+        } else if (newOwner == Players.NEUTRAL) {
+            Player oldPlayerOwner = (oldOwner == Players.RED) ? redPlayer : bluePlayer;
+            oldPlayerOwner.removeProperty(property);
+        } else {
+            Player oldPlayerOwner = (oldOwner == Players.RED) ? redPlayer : bluePlayer;
+            Player newPlayerOwner = (newOwner == Players.RED) ? redPlayer : bluePlayer;
 
+            oldPlayerOwner.removeProperty(property);
+            newPlayerOwner.addProperty(property);
         }
+
+        notifyObservers(new CaptureEvent(position, newOwner));
     }
 
     private void cancelSelection() {
@@ -323,7 +325,20 @@ public class Game {
     }
 
     public Boolean captureTile(Position position, Unit unit) {
+        boolean captured = false;
+        Capturable capturable = (Capturable) map[position.getY()][position.getX()].getTerrain();
+        Players oldController = capturable.getOwner();
 
+        capturable.capture(unit);
+        unit.setHasMoved(true);
+        unit.setHasAttacked(true);
+
+        if (capturable.getOwner() != oldController) {
+            captured = true;
+            transferProperty(capturable, oldController, capturable.getOwner(), position);
+        }
+
+        return captured;
     }
 
     public Tile getTile(Position position) {
