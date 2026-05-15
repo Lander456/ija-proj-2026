@@ -34,8 +34,16 @@ public class GameController implements tool.gameController.GameController {
         game.handleAttack(targetPosition);
     }
 
+    public void undo() {
+        game.undo();
+    }
+
+    public void redo() {
+        game.redo();
+    }
+
     public void endTurn() {
-        game.endTurn();
+        game.handleEndTurn();
     }
 
     public void capture(Position position) {

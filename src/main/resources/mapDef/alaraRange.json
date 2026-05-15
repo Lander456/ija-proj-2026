@@ -17,10 +17,10 @@
     ["M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "M", "W", "W"]
   ],
   "units": [
-    { "type": "Infantry", "player": "Player1", "x": 3, "y": 4 },
-    { "type": "Infantry", "player": "Player1", "x": 4, "y": 3 },
-    { "type": "Infantry", "player": "Player2", "x": 27, "y": 12 },
-    { "type": "Infantry", "player": "Player2", "x": 28, "y": 11 }
+    { "type": "Infantry", "player": "Player1", "x": 3, "y": 4},
+    { "type": "Infantry", "player": "Player1", "x": 4, "y": 3},
+    { "type": "Infantry", "player": "Player2", "x": 27, "y": 12},
+    { "type": "Infantry", "player": "Player2", "x": 28, "y": 11}
   ],
   "ownership": [
     { "x": 3, "y": 2, "player": "Player1" },

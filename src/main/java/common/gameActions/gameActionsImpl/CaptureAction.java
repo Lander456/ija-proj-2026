@@ -34,6 +34,8 @@ public class CaptureAction implements GameAction {
 
         capturable.setResistance(prevResistance);
 
+        capturingUnit.setHasAttacked(false);
+        capturingUnit.setHasMoved(false);
         if (ownershipChanged) {
             game.transferProperty(capturable, capturable.getOwner(), prevOwner, position);
         }

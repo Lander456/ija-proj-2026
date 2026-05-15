@@ -6,6 +6,7 @@ import common.unit.Unit;
 import javafx.scene.paint.Color;
 
 import java.util.List;
+import java.util.Map;
 
 public class Player {
     private final Players side;
@@ -22,7 +23,6 @@ public class Player {
     }
 
     public void endTurn() {
-        System.out.println(this.properties);
         addFunds(this.properties.stream().mapToInt(Capturable::getIncome).sum());
     }
 
@@ -51,4 +51,7 @@ public class Player {
         this.funds -= amount;
     }
     public void addFunds(int amount) { this.funds += amount; }
+    public void setFunds(int amount) { this.funds = amount; }
+    public List<Unit> getUnits() { return units; }
+    public List<Capturable> getProperties() { return properties; }
 }

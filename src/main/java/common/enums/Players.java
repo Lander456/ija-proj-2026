@@ -16,4 +16,6 @@ public enum Players {
         }
         return NEUTRAL;
     }
+
+    public String getLabel() { return label; }
 }

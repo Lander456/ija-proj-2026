@@ -260,6 +260,8 @@ public class GameView extends GridPane {
     public void updateUnitHealth(Position position, Integer unitHealth) {
         StackPane tilePane = getTilePane(position.getY(), position.getX());
 
+        tilePane.getChildren().removeIf(node -> "health".equals(node.getId()));
+
         Label healthLabel = createHealthLabel(unitHealth);
 
         if (healthLabel == null) {
@@ -269,8 +271,6 @@ public class GameView extends GridPane {
         StackPane.setAlignment(healthLabel, Pos.BOTTOM_RIGHT);
         healthLabel.setTranslateX(-2);
         healthLabel.setTranslateY(-2);
-
-        tilePane.getChildren().removeIf(node -> "health".equals(node.getId()));
 
         tilePane.getChildren().add(healthLabel);
     }

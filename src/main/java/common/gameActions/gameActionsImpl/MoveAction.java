@@ -26,7 +26,7 @@ public class MoveAction implements GameAction {
 
     @Override
     public void undo() {
-        game.moveUnit(end, start, unit);
+        game.teleportUnit(start, unit);
         unit.setHasMoved(false);
     }
 }

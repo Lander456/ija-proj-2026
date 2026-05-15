@@ -62,6 +62,8 @@ public class GameObserver implements tool.gameObserver.GameObserver {
 
             case DeleteUnitEvent e -> view.removeSprite(e.position());
 
+            case UpdateHealthEvent e -> view.updateUnitHealth(e.position(), e.unitHealth());
+
             case null, default ->  {
                 break;
             }

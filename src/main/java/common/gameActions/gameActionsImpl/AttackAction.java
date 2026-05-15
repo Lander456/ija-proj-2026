@@ -2,6 +2,7 @@ package common.gameActions.gameActionsImpl;
 
 import common.Position;
 import common.gameActions.GameAction;
+import common.gameEvents.eventTypes.UpdateHealthEvent;
 import common.unit.Unit;
 import game.Game;
 
@@ -10,7 +11,8 @@ public class AttackAction implements GameAction {
     private final Unit attacker, defender;
     private final int attackerPrevHp, defenderPrevHp;
     private final Boolean attackerMoved;
-    private Boolean attackerKilled, defenderKilled;
+    private Boolean attackerKilled = false;
+    private Boolean defenderKilled = false;
 
     public AttackAction(Game game, Unit attacker, Unit defender, int attackerPrevHp, int defenderPrevHp) {
         this.game = game;
@@ -37,7 +39,11 @@ public class AttackAction implements GameAction {
     @Override
     public void undo() {
         attacker.setHealth(attackerPrevHp);
+        game.notifyObservers(new UpdateHealthEvent(attacker.getPosition(), attacker.getHealth()));
+
         defender.setHealth(defenderPrevHp);
+        game.notifyObservers(new UpdateHealthEvent(defender.getPosition(), defender.getHealth()));
+
         attacker.setHasMoved(attackerMoved);
         attacker.setHasAttacked(false);
 
