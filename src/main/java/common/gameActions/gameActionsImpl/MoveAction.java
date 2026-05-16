@@ -1,7 +1,6 @@
 package common.gameActions.gameActionsImpl;
 
 import common.Position;
-import common.enums.Actions;
 import common.gameActions.GameAction;
 import common.unit.Unit;
 import game.Game;
@@ -23,7 +22,6 @@ public class MoveAction implements GameAction {
     @Override
     public void execute() {
         game.moveUnit(start, end, unit);
-        unit.setHasMoved(true);
     }
 
     @Override
@@ -36,7 +34,6 @@ public class MoveAction implements GameAction {
     public GameConfig.JournalEntry toJson() {
         GameConfig.MoveActionJson moveActionJson = new GameConfig.MoveActionJson();
 
-        moveActionJson.actionType = Actions.MOVE.toString();
         moveActionJson.startX = start.getX();
         moveActionJson.startY = start.getY();
         moveActionJson.endX = end.getX();

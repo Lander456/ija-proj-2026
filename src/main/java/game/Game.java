@@ -42,7 +42,7 @@ public class Game {
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
 
-        notifyObservers(new GameStateChangedEvent(gameState));
+        notifyObservers(new GameStateChangedEvent(gameState, isCurrentPlayerAI()));
     }
 
     public GameState getGameState() {
@@ -326,14 +326,17 @@ public class Game {
     public void transferProperty(Capturable property, Players oldOwner, Players newOwner, Position position) {
         if (oldOwner == Players.NEUTRAL) {
             Player newPlayerOwner = (newOwner == Players.RED) ? redPlayer : bluePlayer;
+            property.setOwner(newPlayerOwner.getSide());
             newPlayerOwner.addProperty(property);
         } else if (newOwner == Players.NEUTRAL) {
             Player oldPlayerOwner = (oldOwner == Players.RED) ? redPlayer : bluePlayer;
+            property.setOwner(Players.NEUTRAL);
             oldPlayerOwner.removeProperty(property);
         } else {
             Player oldPlayerOwner = (oldOwner == Players.RED) ? redPlayer : bluePlayer;
             Player newPlayerOwner = (newOwner == Players.RED) ? redPlayer : bluePlayer;
 
+            property.setOwner(newPlayerOwner.getSide());
             oldPlayerOwner.removeProperty(property);
             newPlayerOwner.addProperty(property);
         }
@@ -354,8 +357,10 @@ public class Game {
         capturable.capture(unit);
         unit.setHasMoved(true);
         unit.setHasAttacked(true);
+        System.out.println("Capturable resistance: " + capturable.getResistance());
 
         if (capturable.getOwner() != oldController) {
+            System.out.println("CAPTURED");
             captured = true;
             transferProperty(capturable, oldController, capturable.getOwner(), position);
         }

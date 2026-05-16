@@ -51,17 +51,18 @@ public class AIManager implements GameObserver {
                 }
             }
             case GameStateChangedEvent e -> {
-                if (e.gameState() == GameState.PLAY) {
-                    view.setDisable(true);
-                    if (aiTimeLine != null) {
-                        aiTimeLine.stop();
+                if (e.playerAI()) {
+                    if (e.gameState() == GameState.PLAY) {
+                        view.setDisable(true);
+                        if (aiTimeLine != null) {
+                            aiTimeLine.stop();
+                        }
+                        setUpTimeline();
+                        aiTimeLine.play();
+                    } else {
+                        haltAI();
+                        view.setDisable(false);
                     }
-                    setUpTimeline();
-                    aiTimeLine.play();
-                } else {
-                    System.out.println("halting AI");
-                    haltAI();
-                    view.setDisable(false);
                 }
             }
 

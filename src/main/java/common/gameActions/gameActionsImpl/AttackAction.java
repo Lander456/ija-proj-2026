@@ -1,7 +1,6 @@
 package common.gameActions.gameActionsImpl;
 
 import common.Position;
-import common.enums.Actions;
 import common.gameActions.GameAction;
 import common.gameEvents.eventTypes.UpdateHealthEvent;
 import common.unit.Unit;
@@ -11,6 +10,7 @@ import tool.io.dto.GameConfig;
 public class AttackAction implements GameAction {
     private final Game game;
     private final Unit attacker, defender;
+    private final int attackerX, attackerY, defenderX, defenderY;
     private final int attackerPrevHp, defenderPrevHp;
     private final Boolean attackerMoved;
     private Boolean attackerKilled = false;
@@ -20,6 +20,10 @@ public class AttackAction implements GameAction {
         this.game = game;
         this.attacker = attacker;
         this.defender = defender;
+        this.attackerX = attacker.getPosition().getX();
+        this.attackerY = attacker.getPosition().getY();
+        this.defenderX = defender.getPosition().getX();
+        this.defenderY = defender.getPosition().getY();
         this.attackerPrevHp = attackerPrevHp;
         this.defenderPrevHp = defenderPrevHp;
         this.attackerMoved = attacker.getHasMoved();
@@ -64,13 +68,12 @@ public class AttackAction implements GameAction {
     public GameConfig.JournalEntry toJson() {
         GameConfig.AttackActionJson attackActionJson = new GameConfig.AttackActionJson();
 
-        attackActionJson.actionType = Actions.ATTACK.toString();
-        attackActionJson.attackerX = attacker.getPosition().getX();
-        attackActionJson.attackerY = attacker.getPosition().getY();
+        attackActionJson.attackerX = attackerX;
+        attackActionJson.attackerY = attackerY;
         attackActionJson.attackerPrevHp = attackerPrevHp;
 
-        attackActionJson.defenderX = defender.getPosition().getX();
-        attackActionJson.defenderY = defender.getPosition().getY();
+        attackActionJson.defenderX = defenderX;
+        attackActionJson.defenderY = defenderY;
         attackActionJson.defenderPrevHp = defenderPrevHp;
 
         return attackActionJson;

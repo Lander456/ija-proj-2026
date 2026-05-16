@@ -63,6 +63,14 @@ public class GameView extends GridPane {
                 Terrain terrain = tile.getTerrain();
                 Image terrainImg;
 
+                final int finalR = r;
+                final int finalC = c;
+                tilePane.setOnMouseClicked(event -> {
+                    onTileClicked(new Position(finalC, finalR), event);
+                });
+
+                this.add(tilePane, c, r);
+
                 if (terrain instanceof Capturable) {
                     terrainImg = AssetManager.getSprite(terrain.getTerrainType(), ((Capturable) terrain).getOwner());
                 } else {
@@ -81,15 +89,11 @@ public class GameView extends GridPane {
                     ImageView unitView = createImageView(unitImg, TILE_SIZE);
                     unitView.setId("unit");
                     tilePane.getChildren().add(unitView);
+
+                    if (unit.getHealth() < 100) {
+                        updateUnitHealth(unit.getPosition(), unit.getHealth());
+                    }
                 }
-
-                final int finalR = r;
-                final int finalC = c;
-                tilePane.setOnMouseClicked(event -> {
-                    onTileClicked(new Position(finalC, finalR), event);
-                });
-
-                this.add(tilePane, c, r);
             }
         }
     }

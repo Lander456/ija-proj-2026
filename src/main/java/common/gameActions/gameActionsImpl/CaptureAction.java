@@ -47,7 +47,6 @@ public class CaptureAction implements GameAction {
     public GameConfig.JournalEntry toJson() {
         GameConfig.CaptureActionJson captureActionJson = new GameConfig.CaptureActionJson();
 
-        captureActionJson.actionType = Actions.CAPTURE.toString();
         captureActionJson.x = position.getX();
         captureActionJson.y = position.getY();
         captureActionJson.prevOwner = prevOwner.toString();

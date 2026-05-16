@@ -36,7 +36,6 @@ public class BuildAction implements GameAction {
     public GameConfig.JournalEntry toJson() {
         GameConfig.BuildActionJson buildActionJson = new GameConfig.BuildActionJson();
 
-        buildActionJson.actionType = Actions.BUILD.toString();
         buildActionJson.unitCost = unitCost;
         buildActionJson.x = position.getX();
         buildActionJson.y = position.getY();

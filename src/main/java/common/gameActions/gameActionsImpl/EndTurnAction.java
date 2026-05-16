@@ -44,7 +44,6 @@ public class EndTurnAction implements GameAction {
     public GameConfig.JournalEntry toJson() {
         GameConfig.EndTurnActionJson endTurnActionJson = new GameConfig.EndTurnActionJson();
 
-        endTurnActionJson.actionType = Actions.END_TURN.toString();
         endTurnActionJson.prevFunds = prevFunds;
         endTurnActionJson.prevActive = prevActive.getSide().toString();
 
