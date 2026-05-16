@@ -1,10 +1,12 @@
 package common.gameActions.gameActionsImpl;
 
 import common.Position;
+import common.enums.Actions;
 import common.gameActions.GameAction;
 import common.gameEvents.eventTypes.UpdateHealthEvent;
 import common.unit.Unit;
 import game.Game;
+import tool.io.dto.GameConfig;
 
 public class AttackAction implements GameAction {
     private final Game game;
@@ -56,5 +58,21 @@ public class AttackAction implements GameAction {
             Position defenderPos = defender.getPosition();
             game.restoreUnit(defender, defenderPos);
         }
+    }
+
+    @Override
+    public GameConfig.JournalEntry toJson() {
+        GameConfig.AttackActionJson attackActionJson = new GameConfig.AttackActionJson();
+
+        attackActionJson.actionType = Actions.ATTACK.toString();
+        attackActionJson.attackerX = attacker.getPosition().getX();
+        attackActionJson.attackerY = attacker.getPosition().getY();
+        attackActionJson.attackerPrevHp = attackerPrevHp;
+
+        attackActionJson.defenderX = defender.getPosition().getX();
+        attackActionJson.defenderY = defender.getPosition().getY();
+        attackActionJson.defenderPrevHp = defenderPrevHp;
+
+        return attackActionJson;
     }
 }

@@ -4,5 +4,6 @@ public enum Actions {
     ATTACK,
     MOVE,
     CAPTURE,
-    BUILD
+    BUILD,
+    END_TURN
 }

@@ -1,4 +1,4 @@
-package io.dto;
+package tool.io.dto;
 
 import java.util.List;
 

@@ -1,9 +1,11 @@
 package common.gameActions.gameActionsImpl;
 
 import common.Position;
+import common.enums.Actions;
 import common.gameActions.GameAction;
 import common.unit.Unit;
 import game.Game;
+import tool.io.dto.GameConfig;
 
 public class MoveAction implements GameAction {
     private final Game game;
@@ -28,5 +30,18 @@ public class MoveAction implements GameAction {
     public void undo() {
         game.teleportUnit(start, unit);
         unit.setHasMoved(false);
+    }
+
+    @Override
+    public GameConfig.JournalEntry toJson() {
+        GameConfig.MoveActionJson moveActionJson = new GameConfig.MoveActionJson();
+
+        moveActionJson.actionType = Actions.MOVE.toString();
+        moveActionJson.startX = start.getX();
+        moveActionJson.startY = start.getY();
+        moveActionJson.endX = end.getX();
+        moveActionJson.endY = end.getY();
+
+        return moveActionJson;
     }
 }

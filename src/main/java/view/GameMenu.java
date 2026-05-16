@@ -1,15 +1,16 @@
 package view;
 
 import game.Game;
-import io.GameLoader;
+import javafx.stage.FileChooser;
+import tool.io.GameLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 import java.io.File;
 import java.util.function.Consumer;
 
@@ -49,9 +50,8 @@ public class GameMenu extends VBox {
         loadGameBtn.setStyle(menuBtnStyle);
         exitBtn.setStyle(menuBtnStyle);
 
-        // Wire actions
         newGameBtn.setOnAction(e -> showSetupMenu());
-        //loadGameBtn.setOnAction(e -> handleLoadGame());
+        loadGameBtn.setOnAction(e -> handleLoadGame());
         exitBtn.setOnAction(e -> System.exit(0));
 
         this.getChildren().addAll(title, newGameBtn, loadGameBtn, exitBtn);
@@ -66,28 +66,24 @@ public class GameMenu extends VBox {
         Label setupTitle = new Label("MATCH SETUP");
         setupTitle.setStyle("-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-padding: 0 0 10 0;");
 
-        // Map Picker Selection
         Label mapLabel = new Label("Select Map Battleground:");
         mapLabel.setStyle("-fx-text-fill: #ecf0f1;");
         ComboBox<String> mapPicker = new ComboBox<>();
         mapPicker.getItems().addAll("alaraRange.json", "coralLagoon.json"); // Add your map files here
         mapPicker.setValue("alaraRange.json");
 
-        // Player 1 Config
         Label redLabel = new Label("Player 1 (RED) Controller:");
         redLabel.setStyle("-fx-text-fill: #ecf0f1;");
         ComboBox<String> redType = new ComboBox<>();
         redType.getItems().addAll("Human", "AI Bot");
         redType.setValue("Human");
 
-        // Player 2 Config
         Label blueLabel = new Label("Player 2 (BLUE) Controller:");
         blueLabel.setStyle("-fx-text-fill: #ecf0f1;");
         ComboBox<String> blueType = new ComboBox<>();
         blueType.getItems().addAll("Human", "AI Bot");
         blueType.setValue("AI Bot");
 
-        // Submission Buttons
         Button launchBtn = new Button("Launch Match");
         launchBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-min-width: 150px;");
 
@@ -112,9 +108,6 @@ public class GameMenu extends VBox {
         this.getChildren().addAll(setupTitle, mapLabel, mapPicker, redLabel, redType, blueLabel, blueType, launchBtn, backBtn);
     }
 
-    /**
-     * Handles opening a file dialog menu to import in-progress matches
-     *
     private void handleLoadGame() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open In-Progress Game Save JSON");
@@ -123,7 +116,6 @@ public class GameMenu extends VBox {
         File selectedFile = fileChooser.showOpenDialog(primaryStage);
         if (selectedFile != null) {
             try {
-                // Point your GameLoader framework engine directly to absolute path string
                 Game loadedGame = GameLoader.fromJson(selectedFile.getAbsolutePath());
                 onGameReady.accept(loadedGame);
             } catch (Exception ex) {
@@ -131,5 +123,5 @@ public class GameMenu extends VBox {
                 ex.printStackTrace();
             }
         }
-    }*/
+    }
 }

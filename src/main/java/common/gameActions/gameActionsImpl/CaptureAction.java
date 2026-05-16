@@ -1,11 +1,13 @@
 package common.gameActions.gameActionsImpl;
 
 import common.Position;
+import common.enums.Actions;
 import common.enums.Players;
 import common.gameActions.GameAction;
 import common.terrain.Capturable;
 import common.unit.Unit;
 import game.Game;
+import tool.io.dto.GameConfig;
 
 public class CaptureAction implements GameAction {
     private final Game game;
@@ -39,5 +41,18 @@ public class CaptureAction implements GameAction {
         if (ownershipChanged) {
             game.transferProperty(capturable, capturable.getOwner(), prevOwner, position);
         }
+    }
+
+    @Override
+    public GameConfig.JournalEntry toJson() {
+        GameConfig.CaptureActionJson captureActionJson = new GameConfig.CaptureActionJson();
+
+        captureActionJson.actionType = Actions.CAPTURE.toString();
+        captureActionJson.x = position.getX();
+        captureActionJson.y = position.getY();
+        captureActionJson.prevOwner = prevOwner.toString();
+        captureActionJson.prevResistance = prevResistance;
+
+        return captureActionJson;
     }
 }

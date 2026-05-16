@@ -30,4 +30,8 @@ public class Journal {
             history.push(action);
         }
     }
+
+    public Deque<GameAction> getHistory() {
+        return history;
+    }
 }

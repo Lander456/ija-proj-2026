@@ -10,9 +10,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import tool.io.GameSaver;
 import tool.ai.AIManager;
 import tool.gameController.gameControllerImpl.GameController;
+
+import java.io.File;
 
 public class App extends Application {
 
@@ -23,18 +27,14 @@ public class App extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Advance Wars by FIT");
 
-        // 1. Initialize the application container showing only the interactive state machine menu
-        GameMenu menuView = new GameMenu(primaryStage, this::initializeActiveGameplayScene);
+        GameMenu menuView = new GameMenu(primaryStage, this::initialiseMatch);
         Scene menuScene = new Scene(menuView, 800, 600);
 
         this.primaryStage.setScene(menuScene);
         this.primaryStage.show();
     }
 
-    /**
-     * This receives the generated configuration payload sequence and loads the map viewport HUD layout.
-     */
-    private void initializeActiveGameplayScene(Game game) {
+    private void initialiseMatch(Game game) {
         GameView gameView = new GameView(game);
         GameController gameController = new GameController(game, gameView);
         gameView.setController(gameController);
@@ -65,26 +65,7 @@ public class App extends Application {
 
         StackPane root = new StackPane();
 
-        Button resumeBtn = new Button("Resume");
-        resumeBtn.setOnAction(e -> {
-            if (game.getGameState() == GameState.REPLAY) {
-                game.setGameState(GameState.PLAY);
-
-                if (game.isCurrentPlayerAI()) {
-                    gameView.setDisable(true);
-                    aiManager.update(new TurnChangeEvent(
-                            game.getActivePlayer().getSide(),
-                            game.getActivePlayer().getFunds()
-                    ));
-                }
-
-                root.requestFocus();
-            }
-        });
-        resumeBtn.setFocusTraversable(false);
-
         String timeControlStyle = "-fx-background-color: #2c3e50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15;";
-        resumeBtn.setStyle(timeControlStyle);
         undoBtn.setStyle(timeControlStyle);
         redoBtn.setStyle(timeControlStyle);
 
@@ -94,27 +75,62 @@ public class App extends Application {
         StackPane.setAlignment(undoBtn, Pos.BOTTOM_LEFT);
         StackPane.setAlignment(redoBtn, Pos.BOTTOM_RIGHT);
 
+        Button saveBtn = new Button("Save game");
+        saveBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15;");
+        saveBtn.setFocusTraversable(false);
+
+        saveBtn.setOnAction(e -> {
+            GameState originalState = game.getGameState();
+            game.setGameState(GameState.PAUSE);
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save game");
+
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON save files (*.json)", "*.json"));
+            fileChooser.setInitialFileName("saveGame.json");
+            fileChooser.setInitialDirectory(new File("./"));
+
+            File selectedFile = fileChooser.showSaveDialog(primaryStage);
+
+            if (selectedFile != null) {
+                GameSaver.toFile(selectedFile, game);
+            }
+
+            game.setGameState(originalState);
+            root.requestFocus();
+        });
+
+        StackPane.setMargin(saveBtn, new Insets(20));
+        StackPane.setAlignment(saveBtn, Pos.TOP_RIGHT);
+
         FundsDisplay fundsDisplay = new FundsDisplay();
         StackPane.setAlignment(fundsDisplay, Pos.TOP_LEFT);
 
         gameView.setFundsDisplay(fundsDisplay);
 
-        root.getChildren().addAll(scrollMap, fundsDisplay, turnOverlay, passTurnBtn, undoBtn, redoBtn, resumeBtn);
+        root.getChildren().addAll(scrollMap, fundsDisplay, turnOverlay, passTurnBtn, undoBtn, redoBtn, saveBtn);
 
         Scene gameplayScene = new Scene(root, 800, 600);
 
         gameplayScene.setOnKeyPressed(e -> {
             switch(e.getCode()) {
                 case SPACE -> {
-                    System.out.println("Space pressed");
                     if (game.getGameState() == GameState.PLAY) {
-                        game.setGameState(GameState.REPLAY);
+                        game.setGameState(GameState.PAUSE);
                     } else {
-                        resumeBtn.fire();
+                        game.setGameState(GameState.PLAY);
                     }
                 }
-                case LEFT -> undoBtn.fire();
-                case RIGHT -> redoBtn.fire();
+                case LEFT -> {
+                    if (game.getGameState() == GameState.PAUSE) {
+                        undoBtn.fire();
+                    }
+                }
+                case RIGHT -> {
+                    if (game.getGameState() == GameState.PAUSE) {
+                        redoBtn.fire();
+                    }
+                }
             }
         });
 

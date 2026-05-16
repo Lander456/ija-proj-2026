@@ -13,6 +13,7 @@ import common.tile.Tile;
 import common.unit.Unit;
 import common.unit.UnitFactory;
 import common.unit.UnitRegistry;
+import tool.io.dto.GameConfig;
 import tool.gameObserver.GameObserver;
 
 import java.util.*;
@@ -30,6 +31,7 @@ public class Game {
     private Player redPlayer;
     private Player activePlayer;
     private GameState gameState = GameState.PLAY;
+    private GameConfig gameConfig;
 
     public final Journal gameJournal = new Journal();
     private final Tile[][] map;
@@ -552,5 +554,19 @@ public class Game {
         if (getActivePlayer().getSide() == Players.RED) return redAI;
         if (getActivePlayer().getSide() == Players.BLUE) return blueAI;
         return false;
+    }
+
+    public GameConfig getGameConfig() {
+        return gameConfig;
+    }
+
+    public boolean getRedAI() {
+        return redAI;
+    }
+    public boolean getBlueAI() {
+        return blueAI;
+    }
+    public void setGameConfig(GameConfig gameConfig) {
+        this.gameConfig = gameConfig;
     }
 }
