@@ -12,14 +12,12 @@ public class AssetManager {
 
     public static Image getSprite(String type, Players player) {
         String key = type.toUpperCase() + "_" + player.toString();
-        System.out.println(player.toString());
 
         return cache.computeIfAbsent(key, k -> {
             String path = String.format("/sprites/%s_%s.png",
                     type.toLowerCase(),
                     player.toString().toLowerCase());
 
-            System.out.println("Attempting to load: " + path);
             return new Image(Objects.requireNonNull(AssetManager.class.getResourceAsStream(path)));
         });
     }
@@ -31,7 +29,6 @@ public class AssetManager {
             String path = String.format("/sprites/%s.png",
                     type.toLowerCase());
 
-            System.out.println("Attempting to load: " + path);
             return new Image(Objects.requireNonNull(AssetManager.class.getResourceAsStream(path)));
         });
     }

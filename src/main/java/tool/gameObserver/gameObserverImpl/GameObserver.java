@@ -49,14 +49,14 @@ public class GameObserver implements tool.gameObserver.GameObserver {
 
             case SelectEvent e -> {
                 view.clearHighlights();
-                if (e.getIsActive()) {
-                    view.highlightReachableTiles(e.getReachable());
+                if (e.isActive()) {
+                    view.highlightReachableTiles(e.reachable());
                 }
             }
 
-            case ActionMenuEvent e -> view.showActionMenu(e.getPosition(), e.getActions());
+            case ActionMenuEvent e -> view.showActionMenu(e.position(), e.actions());
 
-            case TurnChangeEvent e -> view.turnChange(e.side(), e.finances());
+            case TurnChangeEvent e -> view.turnChange(e.side());
 
             case FundsUpdateEvent e -> view.updateFundsDisplay(e.amount());
 
@@ -65,7 +65,7 @@ public class GameObserver implements tool.gameObserver.GameObserver {
             case UpdateHealthEvent e -> view.updateUnitHealth(e.position(), e.unitHealth());
 
             case null, default ->  {
-                break;
+
             }
         }
     }

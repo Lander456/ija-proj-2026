@@ -12,6 +12,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 import tool.io.GameSaver;
 import tool.ai.AIManager;
 import tool.gameController.gameControllerImpl.GameController;
@@ -75,30 +76,7 @@ public class App extends Application {
         StackPane.setAlignment(undoBtn, Pos.BOTTOM_LEFT);
         StackPane.setAlignment(redoBtn, Pos.BOTTOM_RIGHT);
 
-        Button saveBtn = new Button("Save game");
-        saveBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15;");
-        saveBtn.setFocusTraversable(false);
-
-        saveBtn.setOnAction(e -> {
-            GameState originalState = game.getGameState();
-            game.setGameState(GameState.PAUSE);
-
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Save game");
-
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON save files (*.json)", "*.json"));
-            fileChooser.setInitialFileName("saveGame.json");
-            fileChooser.setInitialDirectory(new File("./"));
-
-            File selectedFile = fileChooser.showSaveDialog(primaryStage);
-
-            if (selectedFile != null) {
-                GameSaver.toFile(selectedFile, game);
-            }
-
-            game.setGameState(originalState);
-            root.requestFocus();
-        });
+        Button saveBtn = getSaveBtn(game, root);
 
         StackPane.setMargin(saveBtn, new Insets(20));
         StackPane.setAlignment(saveBtn, Pos.TOP_RIGHT);
@@ -148,6 +126,34 @@ public class App extends Application {
         root.requestFocus();
 
         gameplayScene.setOnMouseClicked(e -> root.requestFocus());
+    }
+
+    private @NotNull Button getSaveBtn(Game game, StackPane root) {
+        Button saveBtn = new Button("Save game");
+        saveBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15;");
+        saveBtn.setFocusTraversable(false);
+
+        saveBtn.setOnAction(e -> {
+            GameState originalState = game.getGameState();
+            game.setGameState(GameState.PAUSE);
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save game");
+
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON save files (*.json)", "*.json"));
+            fileChooser.setInitialFileName("saveGame.json");
+            fileChooser.setInitialDirectory(new File("./"));
+
+            File selectedFile = fileChooser.showSaveDialog(primaryStage);
+
+            if (selectedFile != null) {
+                GameSaver.toFile(selectedFile, game);
+            }
+
+            game.setGameState(originalState);
+            root.requestFocus();
+        });
+        return saveBtn;
     }
 
     public static void main(String[] args) {

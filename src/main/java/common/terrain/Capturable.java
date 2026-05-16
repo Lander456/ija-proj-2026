@@ -14,11 +14,6 @@ public abstract class Capturable extends Terrain{
     public Players getOwner() { return owner; }
     public void setOwner(Players owner) { this.owner = owner; }
 
-    @Override
-    public Boolean isCapturable() {
-        return true;
-    }
-
     public void capture(Unit capturingUnit) {
         resistance = resistance - capturingUnit.getHealth() / 10;
 

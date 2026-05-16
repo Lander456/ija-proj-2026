@@ -1,7 +1,6 @@
 package common.gameActions.gameActionsImpl;
 
 import common.Position;
-import common.enums.Actions;
 import common.enums.UnitTypes;
 import common.gameActions.GameAction;
 import game.Game;
@@ -36,10 +35,9 @@ public class BuildAction implements GameAction {
     public GameConfig.JournalEntry toJson() {
         GameConfig.BuildActionJson buildActionJson = new GameConfig.BuildActionJson();
 
-        buildActionJson.actionType = Actions.BUILD.toString();
         buildActionJson.unitCost = unitCost;
-        buildActionJson.x = position.getX();
-        buildActionJson.y = position.getY();
+        buildActionJson.x = position.x();
+        buildActionJson.y = position.y();
         buildActionJson.unitType = unitType.toString();
 
         return buildActionJson;

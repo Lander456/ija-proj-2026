@@ -9,13 +9,11 @@ import view.GameView;
 
 public class GameController implements tool.gameController.GameController {
     private final Game game;
-    private final GameView view;
 
     public GameController(Game game, GameView view) {
         this.game = game;
-        this.view = view;
 
-        this.view.setController(this);
+        view.setController(this);
     }
 
     public void handleClick(Position position, MouseButton button) {
@@ -52,7 +50,7 @@ public class GameController implements tool.gameController.GameController {
 
     public String getTileType(Position position) {
         Tile[][] map = game.getMap();
-        return map[position.getY()][position.getX()].getTerrain().getTerrainType();
+        return map[position.y()][position.x()].getTerrain().getTerrainType();
     }
 
     public void buildUnit(Position position, UnitTypes unitType) {

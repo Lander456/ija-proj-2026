@@ -1,7 +1,6 @@
 package common.unit;
 
 import common.Position;
-import common.enums.AttackTypes;
 import common.enums.MovementTypes;
 import common.enums.Players;
 import common.enums.UnitTypes;
@@ -26,8 +25,6 @@ public abstract class Unit {
     public abstract UnitTypes getUnitType();
 
     public Boolean canCapture() { return false; }
-
-    public AttackTypes attackType() { return AttackTypes.CLOSE_RANGE; }
 
     public Integer getHealth() { return health; }
     public void setHealth(Integer health) { this.health = health; }
@@ -54,6 +51,6 @@ public abstract class Unit {
 
     @Override
     public String toString() {
-        return String.format("{%s[%d,%d][%d]}", this.getUnitType().toString(), this.getPosition().getX(), this.getPosition().getY(), this.getHealth());
+        return String.format("{%s[%d,%d][%d]}", this.getUnitType().toString(), this.getPosition().x(), this.getPosition().y(), this.getHealth());
     }
 }

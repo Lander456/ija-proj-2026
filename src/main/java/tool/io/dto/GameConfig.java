@@ -1,5 +1,6 @@
 package tool.io.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -41,8 +42,8 @@ public class GameConfig {
             @JsonSubTypes.Type(value = CaptureActionJson.class, name = "CAPTURE"),
             @JsonSubTypes.Type(value = EndTurnActionJson.class, name = "END_TURN"),
     })
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static abstract class JournalEntry {
-        public String actionType;
     }
 
     public static class AttackActionJson extends JournalEntry {

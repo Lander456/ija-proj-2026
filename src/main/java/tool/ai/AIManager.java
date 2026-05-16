@@ -1,6 +1,5 @@
 package tool.ai;
 
-import common.Player;
 import common.enums.GameState;
 import common.gameEvents.GameEvent;
 import common.gameEvents.eventTypes.GameStateChangedEvent;
@@ -28,10 +27,7 @@ public class AIManager implements GameObserver {
     }
 
     private void setUpTimeline() {
-        aiTimeLine = new Timeline(new KeyFrame(Duration.seconds(0.1), e -> {
-            System.out.println("taking action");
-            bot.takeAction();
-        }));
+        aiTimeLine = new Timeline(new KeyFrame(Duration.seconds(0.1), e -> bot.takeAction()));
         aiTimeLine.setCycleCount(Timeline.INDEFINITE);
     }
 
@@ -51,17 +47,18 @@ public class AIManager implements GameObserver {
                 }
             }
             case GameStateChangedEvent e -> {
-                if (e.gameState() == GameState.PLAY) {
-                    view.setDisable(true);
-                    if (aiTimeLine != null) {
-                        aiTimeLine.stop();
+                if (e.playerAI()) {
+                    if (e.gameState() == GameState.PLAY) {
+                        view.setDisable(true);
+                        if (aiTimeLine != null) {
+                            aiTimeLine.stop();
+                        }
+                        setUpTimeline();
+                        aiTimeLine.play();
+                    } else {
+                        haltAI();
+                        view.setDisable(false);
                     }
-                    setUpTimeline();
-                    aiTimeLine.play();
-                } else {
-                    System.out.println("halting AI");
-                    haltAI();
-                    view.setDisable(false);
                 }
             }
 

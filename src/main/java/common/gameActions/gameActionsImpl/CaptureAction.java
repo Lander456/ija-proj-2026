@@ -1,7 +1,6 @@
 package common.gameActions.gameActionsImpl;
 
 import common.Position;
-import common.enums.Actions;
 import common.enums.Players;
 import common.gameActions.GameAction;
 import common.terrain.Capturable;
@@ -47,9 +46,8 @@ public class CaptureAction implements GameAction {
     public GameConfig.JournalEntry toJson() {
         GameConfig.CaptureActionJson captureActionJson = new GameConfig.CaptureActionJson();
 
-        captureActionJson.actionType = Actions.CAPTURE.toString();
-        captureActionJson.x = position.getX();
-        captureActionJson.y = position.getY();
+        captureActionJson.x = position.x();
+        captureActionJson.y = position.y();
         captureActionJson.prevOwner = prevOwner.toString();
         captureActionJson.prevResistance = prevResistance;
 

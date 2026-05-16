@@ -1,7 +1,5 @@
 package common.unit;
 
-import common.enums.Players;
-
 public abstract class UnitFactory {
     private static final String infantryString = "Infantry";
     private static final String tankString = "Tank";

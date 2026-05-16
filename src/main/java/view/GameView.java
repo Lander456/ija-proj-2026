@@ -30,7 +30,6 @@ import java.util.List;
 
 public class GameView extends GridPane {
     private final Game game;
-    private final GameObserver observer;
     private final int TILE_SIZE = 32;
     private GameController controller;
     private TurnOverlay turnOverlay;
@@ -42,9 +41,9 @@ public class GameView extends GridPane {
 
     public GameView(Game game) {
         this.game = game;
-        this.observer = new GameObserver(this);
+        GameObserver observer = new GameObserver(this);
 
-        this.game.addObserver(this.observer);
+        this.game.addObserver(observer);
         initialRender();
     }
 
@@ -62,6 +61,12 @@ public class GameView extends GridPane {
 
                 Terrain terrain = tile.getTerrain();
                 Image terrainImg;
+
+                final int finalR = r;
+                final int finalC = c;
+                tilePane.setOnMouseClicked(event -> onTileClicked(new Position(finalC, finalR), event));
+
+                this.add(tilePane, c, r);
 
                 if (terrain instanceof Capturable) {
                     terrainImg = AssetManager.getSprite(terrain.getTerrainType(), ((Capturable) terrain).getOwner());
@@ -81,21 +86,17 @@ public class GameView extends GridPane {
                     ImageView unitView = createImageView(unitImg, TILE_SIZE);
                     unitView.setId("unit");
                     tilePane.getChildren().add(unitView);
+
+                    if (unit.getHealth() < 100) {
+                        updateUnitHealth(unit.getPosition(), unit.getHealth());
+                    }
                 }
-
-                final int finalR = r;
-                final int finalC = c;
-                tilePane.setOnMouseClicked(event -> {
-                    onTileClicked(new Position(finalC, finalR), event);
-                });
-
-                this.add(tilePane, c, r);
             }
         }
     }
 
     public void addUnitSprite(Position position, Unit unit) {
-        StackPane tilePane = getTilePane(position.getY(), position.getX());
+        StackPane tilePane = getTilePane(position.y(), position.x());
         Image unitImg = AssetManager.getSprite(unit.getUnitType().toString(), unit.getOwnedBy());
 
         ImageView unitView = createImageView(unitImg, TILE_SIZE);
@@ -117,7 +118,7 @@ public class GameView extends GridPane {
 
     public void highlightReachableTiles(List<Position> positions) {
         for  (Position p : positions) {
-            StackPane tilePane = getTilePane(p.getY(), p.getX());
+            StackPane tilePane = getTilePane(p.y(), p.x());
 
             if (tilePane != null) {
                 Rectangle highlight = new Rectangle(TILE_SIZE, TILE_SIZE);
@@ -160,17 +161,13 @@ public class GameView extends GridPane {
             switch (action) {
                 case MOVE -> {
                     MenuItem move = new MenuItem("Wait");
-                    move.setOnAction(event -> {
-                        controller.moveUnit(position);
-                    });
+                    move.setOnAction(event -> controller.moveUnit(position));
                     menu.getItems().add(move);
                 }
 
                 case ATTACK -> {
                     MenuItem attack = new MenuItem("Attack");
-                    attack.setOnAction(event -> {
-                        controller.attack(position);
-                    });
+                    attack.setOnAction(event -> controller.attack(position));
                     menu.getItems().add(attack);
                 }
 
@@ -189,17 +186,11 @@ public class GameView extends GridPane {
                     MenuItem buildTank = new MenuItem(UnitTypes.Tank.toString());
                     MenuItem buildArtillery = new MenuItem(UnitTypes.Artillery.toString());
 
-                    buildInfantry.setOnAction(event -> {
-                        controller.buildUnit(position, UnitTypes.Infantry);
-                    });
+                    buildInfantry.setOnAction(event -> controller.buildUnit(position, UnitTypes.Infantry));
 
-                    buildArtillery.setOnAction(event -> {
-                        controller.buildUnit(position, UnitTypes.Artillery);
-                    });
+                    buildArtillery.setOnAction(event -> controller.buildUnit(position, UnitTypes.Artillery));
 
-                    buildTank.setOnAction(event -> {
-                        controller.buildUnit(position, UnitTypes.Tank);
-                    });
+                    buildTank.setOnAction(event -> controller.buildUnit(position, UnitTypes.Tank));
 
                     build.getItems().addAll(buildInfantry, buildTank, buildArtillery);
 
@@ -210,20 +201,18 @@ public class GameView extends GridPane {
 
         if (!menu.getItems().isEmpty()) {
             MenuItem cancel = new MenuItem("Cancel");
-            cancel.setOnAction(event -> {
-                clearHighlights();
-            });
+            cancel.setOnAction(event -> clearHighlights());
             menu.getItems().add(cancel);
         }
 
-        StackPane tilePane = getTilePane(position.getY(), position.getX());
+        StackPane tilePane = getTilePane(position.y(), position.x());
 
         menu.show(tilePane, Side.RIGHT, 0, 0);
     }
 
     public void moveUnitSprite(Position startPosition, Position endPosition) {
-        StackPane startPane = getTilePane(startPosition.getY(), startPosition.getX());
-        StackPane endPane = getTilePane(endPosition.getY(), endPosition.getX());
+        StackPane startPane = getTilePane(startPosition.y(), startPosition.x());
+        StackPane endPane = getTilePane(endPosition.y(), endPosition.x());
 
         if (startPane != null && endPane != null) {
             Node unitNode = null;
@@ -250,7 +239,7 @@ public class GameView extends GridPane {
     }
 
     public void removeSprite(Position position) {
-        StackPane tilePane = getTilePane(position.getY(), position.getX());
+        StackPane tilePane = getTilePane(position.y(), position.x());
 
         tilePane.getChildren().removeIf(node ->
                 "unit".equals(node.getId()) || "health".equals(node.getId())
@@ -258,7 +247,7 @@ public class GameView extends GridPane {
     }
 
     public void updateUnitHealth(Position position, Integer unitHealth) {
-        StackPane tilePane = getTilePane(position.getY(), position.getX());
+        StackPane tilePane = getTilePane(position.y(), position.x());
 
         tilePane.getChildren().removeIf(node -> "health".equals(node.getId()));
 
@@ -292,7 +281,7 @@ public class GameView extends GridPane {
         return null;
     }
 
-    public void turnChange(Players player, int funds) {
+    public void turnChange(Players player) {
         if (turnOverlay != null) {
             Color color = (player == Players.RED) ? Color.RED : Color.BLUE;
 
@@ -301,7 +290,7 @@ public class GameView extends GridPane {
     }
 
     public void updateTerrainSprite(Position position, Players owner) {
-        StackPane tilePane = getTilePane(position.getY(), position.getX());
+        StackPane tilePane = getTilePane(position.y(), position.x());
         String terrainType = controller.getTileType(position);
 
         if (tilePane != null) {

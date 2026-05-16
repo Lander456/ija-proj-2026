@@ -6,17 +6,6 @@ import common.gameEvents.GameEvent;
 
 import java.util.List;
 
-public final class ActionMenuEvent implements GameEvent {
-    private final Position position;
-    private final List<Actions> actions;
-
-    public  ActionMenuEvent(Position position, List<Actions> actions) {
-        this.position = position;
-        this.actions = actions;
-    }
-
-    public Position getPosition() {
-        return position;
-    }
-    public List<Actions> getActions() { return actions; }
+public record ActionMenuEvent(Position position,
+                              List<Actions> actions) implements GameEvent {
 }

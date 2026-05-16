@@ -18,8 +18,4 @@ public class UnitRegistry {
         Unit u = unitTemplates.get(type);
         return (u != null) ? u.cost() : 0;
     }
-
-    public static Unit getTemplate(UnitTypes type) {
-        return unitTemplates.get(type);
-    }
 }

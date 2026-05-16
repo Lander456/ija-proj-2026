@@ -30,8 +30,6 @@ public class DummyBot {
         List<GameAction> availableActions = new ArrayList<>();
         Player activePlayer = game.getActivePlayer();
 
-        System.out.println(activePlayer.getSide().toString());
-
         for (Unit unit : activePlayer.getUnits()) {
 
             Position unitPos = unit.getPosition();

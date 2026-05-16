@@ -42,7 +42,7 @@ public class Game {
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
 
-        notifyObservers(new GameStateChangedEvent(gameState));
+        notifyObservers(new GameStateChangedEvent(gameState, isCurrentPlayerAI()));
     }
 
     public GameState getGameState() {
@@ -90,7 +90,7 @@ public class Game {
      * @param player which player the unit belongs to
      * @param startX X coordinate of the tile position the unit should spawn
      * @param startY Y coordinate of the tile position the unit should spawn
-     * @return a new unit instance with its player ownership, type and poisitional info
+     * @return a new unit instance with its player ownership, type and positional info
      * @author Tadeas Topinka (xtopint00)
      */
     public Unit createUnit(String type, String player, Integer startX, Integer startY) {
@@ -115,8 +115,8 @@ public class Game {
     public void moveUnit(Position startPosition, Position destination, Unit movedUnit) {
         if (getReachableTiles(startPosition).contains(destination)) {
 
-            map[destination.getY()][destination.getX()].setUnit(movedUnit);
-            map[startPosition.getY()][startPosition.getX()].setUnit(null);
+            map[destination.y()][destination.x()].setUnit(movedUnit);
+            map[startPosition.y()][startPosition.x()].setUnit(null);
 
             movedUnit.setPosition(destination);
             movedUnit.setHasMoved(true);
@@ -132,8 +132,8 @@ public class Game {
     public void teleportUnit(Position destination, Unit unit) {
         Position startPosition = unit.getPosition();
 
-        map[startPosition.getY()][startPosition.getX()].setUnit(null);
-        map[destination.getY()][destination.getX()].setUnit(unit);
+        map[startPosition.y()][startPosition.x()].setUnit(null);
+        map[destination.y()][destination.x()].setUnit(unit);
 
         unit.setPosition(destination);
 
@@ -171,7 +171,7 @@ public class Game {
         int maxCost;
         boolean isWheeled;
 
-        var tile = map[position.getY()][position.getX()];
+        var tile = map[position.y()][position.x()];
         var unit = tile.getUnit();
 
         if (unit == null) {
@@ -199,20 +199,20 @@ public class Game {
             }
         }
 
-        distance[position.getY()][position.getX()] = 0;
+        distance[position.y()][position.x()] = 0;
 
-        PriorityQueue<Node> pq = new PriorityQueue<>(Comparator.comparingInt(n -> n.getCost()));
+        PriorityQueue<Node> pq = new PriorityQueue<>(Comparator.comparingInt(Node::cost));
         pq.add(new Node(position, 0));  // add starting position
 
         while (!pq.isEmpty()) {
             Node currentNode = pq.poll();
 
-            int r = currentNode.getPosition().getY();
-            int c = currentNode.getPosition().getX();
+            int r = currentNode.position().y();
+            int c = currentNode.position().x();
 
-            if (currentNode.getCost() > distance[r][c]) continue;
+            if (currentNode.cost() > distance[r][c]) continue;
 
-            for (int[] d : directions) {  // neighboring cells
+            for (int[] d : directions) {  // neighbouring cells
                 int newRow = r + d[0];
                 int newCol = c + d[1];
 
@@ -223,7 +223,7 @@ public class Game {
                     if (terrainCost == null) {
                         continue;
                     }
-                    int newCost = currentNode.getCost() + terrainCost;
+                    int newCost = currentNode.cost() + terrainCost;
 
 
                     if (newCost < distance[newRow][newCol] && newCost <= maxCost) {
@@ -238,7 +238,7 @@ public class Game {
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 if (distance[r][c] <= maxCost && distance[r][c] != Integer.MAX_VALUE
-                        && !(r == position.getY() && c == position.getX())) {
+                        && !(r == position.y() && c == position.x())) {
 
                     if (map[r][c].getUnit() == null) {
                         reachableTiles.add(new Position(c, r));
@@ -268,11 +268,11 @@ public class Game {
     }
 
     public void selectTile(Position position) {
-        this.selectedTilePos = new Position(position.getX(), position.getY());
-        Unit selectedUnit = map[position.getY()][position.getX()].getUnit();
+        this.selectedTilePos = new Position(position.x(), position.y());
+        Unit selectedUnit = map[position.y()][position.x()].getUnit();
         if (selectedUnit != null && selectedUnit.getOwnedBy() == activePlayer.getSide() && !selectedUnit.getHasMoved()) {
             this.currentReachable = getReachableTiles(position);
-            notifyObservers(new SelectEvent(position, currentReachable, true));
+            notifyObservers(new SelectEvent(currentReachable, true));
         } else {
             cancelSelection();
         }
@@ -284,9 +284,9 @@ public class Game {
         }
 
         List<Actions> actions = new ArrayList<>();
-        Terrain terrain = map[position.getY()][position.getX()].getTerrain();
-        Unit selectedUnit = map[this.selectedTilePos.getY()][this.selectedTilePos.getX()].getUnit();
-        Unit unit = map[position.getY()][position.getX()].getUnit();
+        Terrain terrain = map[position.y()][position.x()].getTerrain();
+        Unit selectedUnit = map[this.selectedTilePos.y()][this.selectedTilePos.x()].getUnit();
+        Unit unit = map[position.y()][position.x()].getUnit();
 
         if (selectedUnit != null && (!selectedUnit.getHasMoved() || !selectedUnit.getHasAttacked())) {
             if (unit != null && getAttackReach(selectedTilePos, selectedUnit.minAttackRange(), selectedUnit.maxAttackRange()).contains(position) && !selectedUnit.getHasAttacked()) {
@@ -306,8 +306,8 @@ public class Game {
     }
 
     public void handleAttack(Position target) {
-        Unit attackingUnit = map[this.selectedTilePos.getY()][this.selectedTilePos.getX()].getUnit();
-        Unit targetUnit = map[target.getY()][target.getX()].getUnit();
+        Unit attackingUnit = map[this.selectedTilePos.y()][this.selectedTilePos.x()].getUnit();
+        Unit targetUnit = map[target.y()][target.x()].getUnit();
 
         if (attackingUnit != null && targetUnit != null) {
             gameJournal.addAndExecute(new AttackAction(this, attackingUnit, targetUnit, attackingUnit.getHealth(), targetUnit.getHealth()));
@@ -315,7 +315,7 @@ public class Game {
     }
 
     public void handleCapture(Position position) {
-        Tile tile = map[position.getY()][position.getX()];
+        Tile tile = map[position.y()][position.x()];
 
         Capturable capturable = (Capturable) tile.getTerrain();
         Unit unit = tile.getUnit();
@@ -326,14 +326,17 @@ public class Game {
     public void transferProperty(Capturable property, Players oldOwner, Players newOwner, Position position) {
         if (oldOwner == Players.NEUTRAL) {
             Player newPlayerOwner = (newOwner == Players.RED) ? redPlayer : bluePlayer;
+            property.setOwner(newPlayerOwner.getSide());
             newPlayerOwner.addProperty(property);
         } else if (newOwner == Players.NEUTRAL) {
             Player oldPlayerOwner = (oldOwner == Players.RED) ? redPlayer : bluePlayer;
+            property.setOwner(Players.NEUTRAL);
             oldPlayerOwner.removeProperty(property);
         } else {
             Player oldPlayerOwner = (oldOwner == Players.RED) ? redPlayer : bluePlayer;
             Player newPlayerOwner = (newOwner == Players.RED) ? redPlayer : bluePlayer;
 
+            property.setOwner(newPlayerOwner.getSide());
             oldPlayerOwner.removeProperty(property);
             newPlayerOwner.addProperty(property);
         }
@@ -343,19 +346,21 @@ public class Game {
 
     private void cancelSelection() {
         this.currentReachable.clear();
-        notifyObservers(new SelectEvent(null, null, false));
+        notifyObservers(new SelectEvent(null, false));
     }
 
     public Boolean captureTile(Position position, Unit unit) {
         boolean captured = false;
-        Capturable capturable = (Capturable) map[position.getY()][position.getX()].getTerrain();
+        Capturable capturable = (Capturable) map[position.y()][position.x()].getTerrain();
         Players oldController = capturable.getOwner();
 
         capturable.capture(unit);
         unit.setHasMoved(true);
         unit.setHasAttacked(true);
+        System.out.println("Capturable resistance: " + capturable.getResistance());
 
         if (capturable.getOwner() != oldController) {
+            System.out.println("CAPTURED");
             captured = true;
             transferProperty(capturable, oldController, capturable.getOwner(), position);
         }
@@ -364,11 +369,11 @@ public class Game {
     }
 
     public Tile getTile(Position position) {
-        return map[position.getY()][position.getX()];
+        return map[position.y()][position.x()];
     }
 
     public void handleMove(Position position) {
-        Unit movedUnit = map[selectedTilePos.getY()][selectedTilePos.getX()].getUnit();
+        Unit movedUnit = map[selectedTilePos.y()][selectedTilePos.x()].getUnit();
         if (movedUnit == null) {
             return;
         }
@@ -385,7 +390,7 @@ public class Game {
         Position defenderPosition = defender.getPosition();
         Position attackerPosition = attacker.getPosition();
 
-        Terrain defenderTerrain = map[defenderPosition.getY()][defenderPosition.getX()].getTerrain();
+        Terrain defenderTerrain = map[defenderPosition.y()][defenderPosition.x()].getTerrain();
         Integer attackDamage = CombatService.calculateDamage(attacker, defender, defenderTerrain);
 
         defender.takeDamage(attackDamage);
@@ -395,18 +400,18 @@ public class Game {
         if (defender.getHealth() > 0) {
             if (getAttackReach(defenderPosition, defender.minAttackRange(), defender.maxAttackRange()).contains(attackerPosition)) {
                 System.out.println("CounterAttacking!!");
-                Terrain attackerTerrain = map[attackerPosition.getY()][attackerPosition.getX()].getTerrain();
+                Terrain attackerTerrain = map[attackerPosition.y()][attackerPosition.x()].getTerrain();
                 Integer counterAttackDamage = CombatService.calculateDamage(defender, attacker, attackerTerrain);
 
                 attacker.takeDamage(counterAttackDamage);
 
                 if (attacker.getHealth() < 0) {
-                    map[attackerPosition.getY()][attackerPosition.getX()].setUnit(null);
+                    map[attackerPosition.y()][attackerPosition.x()].setUnit(null);
                     activePlayer.deleteUnit(attacker);
                 }
             }
         } else {
-            map[defenderPosition.getY()][defenderPosition.getX()].setUnit(null);
+            map[defenderPosition.y()][defenderPosition.x()].setUnit(null);
             if ((defender.getOwnedBy() == Players.RED)) {
                 redPlayer.deleteUnit(defender);
             } else {
@@ -428,8 +433,8 @@ public class Game {
                 int currentDistance = Math.abs(r) + Math.abs(c);
 
                 if (currentDistance >= minRange && currentDistance <= maxRange) {
-                    int targetX = from.getX() + c;
-                    int targetY = from.getY() + r;
+                    int targetX = from.x() + c;
+                    int targetY = from.y() + r;
 
                     if (targetX >= 0 && targetX < map[0].length && targetY >= 0 && targetY < map.length) {
                         Unit targetUnit = map[targetY][targetX].getUnit();
@@ -468,7 +473,7 @@ public class Game {
             Integer unitHealth = u.getHealth();
             Position unitPosition = u.getPosition();
             int healingCost = u.cost()/10;
-            Terrain unitTerrain = map[unitPosition.getY()][unitPosition.getX()].getTerrain();
+            Terrain unitTerrain = map[unitPosition.y()][unitPosition.x()].getTerrain();
 
             if (unitTerrain instanceof Capturable capturable) {
                 System.out.println(capturable.getOwner() + "==" + u.getOwnedBy());
@@ -499,7 +504,7 @@ public class Game {
     }
 
     public void buildUnit(Position position, UnitTypes unitType) {
-        Unit createdUnit = createUnit(unitType.toString(), activePlayer.getSide().toString(), position.getX(), position.getY());
+        Unit createdUnit = createUnit(unitType.toString(), activePlayer.getSide().toString(), position.x(), position.y());
         createdUnit.setHasAttacked(true);
         createdUnit.setHasMoved(true);
         notifyObservers(new BuildEvent(position, createdUnit));
@@ -514,8 +519,8 @@ public class Game {
     }
 
     public void removeUnit(Position position) {
-        Unit unit = map[position.getY()][position.getX()].getUnit();
-        map[position.getY()][position.getX()].setUnit(null);
+        Unit unit = map[position.y()][position.x()].getUnit();
+        map[position.y()][position.x()].setUnit(null);
         activePlayer.deleteUnit(unit);
         notifyObservers(new DeleteUnitEvent(position));
     }
@@ -531,7 +536,7 @@ public class Game {
     }
 
     public void restoreUnit(Unit unit, Position position) {
-        map[position.getY()][position.getX()].setUnit(unit);
+        map[position.y()][position.x()].setUnit(unit);
         notifyObservers(new BuildEvent(position, unit));
     }
 

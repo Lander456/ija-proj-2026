@@ -3,23 +3,20 @@ package common;
 import common.enums.Players;
 import common.terrain.Capturable;
 import common.unit.Unit;
-import javafx.scene.paint.Color;
 
 import java.util.List;
-import java.util.Map;
 
 public class Player {
     private final Players side;
     private int funds;
     private final List<Capturable> properties;
     private final List<Unit> units;
-    private final Color color;
+
     public Player(Players side, int startingFunds, List<Unit> startingUnits, List<Capturable> startingProperties) {
         this.side = side;
         this.funds = startingFunds;
         this.units = startingUnits;
         this.properties = startingProperties;
-        this.color = (side == Players.RED) ? Color.RED : Color.BLUE;
     }
 
     public void endTurn() {
