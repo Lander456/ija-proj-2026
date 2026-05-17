@@ -2,6 +2,7 @@ package view;
 
 import common.Position;
 import common.enums.Actions;
+import common.enums.GameState;
 import common.enums.Players;
 import common.enums.UnitTypes;
 import common.terrain.Capturable;
@@ -34,9 +35,21 @@ public class GameView extends GridPane {
     private GameController controller;
     private TurnOverlay turnOverlay;
     private FundsDisplay fundsDisplay;
+    private final Label turnLabel = new Label();
+    private GameEndScreen gameEndScreen;
 
     public void setFundsDisplay(FundsDisplay fundsDisplay) {
         this.fundsDisplay = fundsDisplay;
+    }
+
+    public void setGameEndScreen(GameEndScreen gameEndScreen) {
+        this.gameEndScreen = gameEndScreen;
+    }
+
+    public Label getTurnLabel() { return turnLabel; }
+
+    public void setController(GameController controller) {
+        this.controller = controller;
     }
 
     public GameView(Game game) {
@@ -44,6 +57,8 @@ public class GameView extends GridPane {
         GameObserver observer = new GameObserver(this);
 
         this.game.addObserver(observer);
+
+        this.turnLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 5 10; -fx-background-radius: 5;");
         initialRender();
     }
 
@@ -287,6 +302,14 @@ public class GameView extends GridPane {
 
             turnOverlay.showTurn(player.toString(), color);
         }
+
+        if (player == Players.RED) {
+            turnLabel.setText("CURRENT PLAYER: RED");
+            turnLabel.setStyle("-fx-text-fill: #ff0e0b; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-color: #fadbd8; -fx-padding: 5 10; -fx-background-radius: 5;");
+        } else {
+            turnLabel.setText("CURRENT PLAYER: BLUE");
+            turnLabel.setStyle("-fx-text-fill: #0daeff; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-color: #fadbd8; -fx-padding: 5 10; -fx-background-radius: 5;");
+        }
     }
 
     public void updateTerrainSprite(Position position, Players owner) {
@@ -305,11 +328,14 @@ public class GameView extends GridPane {
         }
     }
 
-    public void updateFundsDisplay(int amount) {
-        fundsDisplay.updateFunds(amount);
+    public void gameEnd(Players victor) {
+        controller.setGameState(GameState.PAUSE);
+        this.setDisable(true);
+
+        gameEndScreen.showGameEndScreen(victor.toString());
     }
 
-    public void setController(GameController controller) {
-        this.controller = controller;
+    public void updateFundsDisplay(int amount) {
+        fundsDisplay.updateFunds(amount);
     }
 }

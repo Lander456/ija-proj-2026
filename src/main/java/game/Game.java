@@ -39,6 +39,8 @@ public class Game {
     private Position selectedTilePos = null;
     private List<Position> currentReachable = new ArrayList<>();
 
+    public Tile[][] getMap() { return map; }
+
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
 
@@ -166,6 +168,7 @@ public class Game {
      * method used to get reachable tiles attackerPosition a certain position on the map
      * @param position position attackerPosition which to search
      * @return list of all reachable tiles
+     * @author Frantisek Janota (xjanotf00) fixed by Tadeas Topinka (xtopint00)
      */
     public List<Position> getReachableTiles(Position position) {
         int maxCost;
@@ -180,6 +183,8 @@ public class Game {
 
         maxCost = unit.movementRange();
         isWheeled = unit.movementType() == MovementTypes.WHEELS;
+
+        Players unitOwner = unit.getOwnedBy();
 
         // DIJKSTRA
         int[][] directions = {
@@ -219,6 +224,13 @@ public class Game {
                 // checking bounds
                 if (newRow >= 0 && newCol >= 0 && newRow < rows && newCol < cols) {
 
+                    Tile targetTile = getTile(new Position(newCol, newRow));
+                    Unit targetUnit = targetTile.getUnit();
+
+                    if (targetUnit != null && targetUnit.getOwnedBy() != unitOwner) {
+                        continue;
+                    }
+
                     Integer terrainCost = map[newRow][newCol].getTerrain().getMovementCost(isWheeled);
                     if (terrainCost == null) {
                         continue;
@@ -250,17 +262,16 @@ public class Game {
         return reachableTiles;
     }
 
-    public Tile[][] getMap() { return map; }
-
     public void updateTerrainOwner(int x, int y, String player) {
         if (x >= 0 && x < map[0].length && y >= 0 && y < map.length) {
             String terrainType = map[y][x].getTerrain().getTerrainCode();
             map[y][x] = new Tile(terrainType, player);
-            System.out.println("Player " + player);
             if (Players.fromString(player).equals(Players.RED)) {
+                System.out.println("x = " + x + ", y = " + y);
                 bluePlayer.removeProperty((Capturable) map[y][x].getTerrain());
                 redPlayer.addProperty((Capturable) map[y][x].getTerrain());
             } else {
+                System.out.println("x = " + x + ", y = " + y);
                 redPlayer.removeProperty((Capturable) map[y][x].getTerrain());
                 bluePlayer.addProperty((Capturable) map[y][x].getTerrain());
             }
@@ -360,8 +371,10 @@ public class Game {
         System.out.println("Capturable resistance: " + capturable.getResistance());
 
         if (capturable.getOwner() != oldController) {
-            System.out.println("CAPTURED");
             captured = true;
+            if (Objects.equals(capturable.getTerrainType(), "hq")) {
+                notifyObservers(new VictoryEvent(activePlayer.getSide()));
+            }
             transferProperty(capturable, oldController, capturable.getOwner(), position);
         }
 

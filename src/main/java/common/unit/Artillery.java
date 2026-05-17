@@ -1,6 +1,5 @@
 package common.unit;
 
-import common.enums.AttackTypes;
 import common.enums.MovementTypes;
 import common.enums.Players;
 import common.enums.UnitTypes;

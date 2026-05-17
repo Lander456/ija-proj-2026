@@ -1,6 +1,7 @@
 package tool.gameController.gameControllerImpl;
 
 import common.Position;
+import common.enums.GameState;
 import common.enums.UnitTypes;
 import common.tile.Tile;
 import game.Game;
@@ -56,4 +57,6 @@ public class GameController implements tool.gameController.GameController {
     public void buildUnit(Position position, UnitTypes unitType) {
         game.handleBuild(position, unitType);
     }
+
+    public void setGameState(GameState gameState) { game.setGameState(gameState); }
 }

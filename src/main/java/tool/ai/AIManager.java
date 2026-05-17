@@ -4,6 +4,7 @@ import common.enums.GameState;
 import common.gameEvents.GameEvent;
 import common.gameEvents.eventTypes.GameStateChangedEvent;
 import common.gameEvents.eventTypes.TurnChangeEvent;
+import common.gameEvents.eventTypes.VictoryEvent;
 import game.Game;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -61,6 +62,7 @@ public class AIManager implements GameObserver {
                     }
                 }
             }
+            case VictoryEvent e -> haltAI();
 
             default -> {}
         }

@@ -31,7 +31,7 @@ public class TurnOverlay extends StackPane {
         fadeIn.setFromValue(0);
         fadeIn.setToValue(1);
 
-        PauseTransition pause = new PauseTransition(Duration.seconds(1));
+        PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
 
         FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.5), this);
         fadeOut.setFromValue(1);

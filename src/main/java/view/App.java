@@ -8,14 +8,17 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.jetbrains.annotations.NotNull;
 import tool.io.GameSaver;
 import tool.ai.AIManager;
 import tool.gameController.gameControllerImpl.GameController;
+import view.menus.MainMenu;
+import view.menus.PauseMenu;
 
 import java.io.File;
 
@@ -28,15 +31,17 @@ public class App extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Advance Wars by FIT");
 
-        GameMenu menuView = new GameMenu(primaryStage, this::initialiseMatch);
+        MainMenu menuView = new MainMenu(primaryStage, this::initialiseGame);
         Scene menuScene = new Scene(menuView, 800, 600);
 
         this.primaryStage.setScene(menuScene);
         this.primaryStage.show();
     }
 
-    private void initialiseMatch(Game game) {
+    private void initialiseGame(Game game) {
         GameView gameView = new GameView(game);
+        Label turnLabel = gameView.getTurnLabel();
+        gameView.turnChange(game.getActivePlayer().getSide());
         GameController gameController = new GameController(game, gameView);
         gameView.setController(gameController);
 
@@ -53,8 +58,17 @@ public class App extends Application {
         passTurnBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;");
         passTurnBtn.setOnAction(e -> gameController.endTurn());
 
-        StackPane.setMargin(passTurnBtn, new Insets(20));
-        StackPane.setAlignment(passTurnBtn, Pos.BOTTOM_CENTER);
+        VBox turnControlPanel = new VBox();
+        turnControlPanel.setAlignment(Pos.CENTER);
+        turnControlPanel.setSpacing(10);
+        turnControlPanel.setStyle("-fx-background-color: rgba(255, 255, 255, 0.75); -fx-background-radius: 10; -fx-padding: 10;");
+        turnControlPanel.getChildren().addAll(turnLabel, passTurnBtn);
+
+        turnControlPanel.setMaxHeight(VBox.USE_PREF_SIZE);
+        turnControlPanel.setMaxWidth(VBox.USE_PREF_SIZE);
+
+        StackPane.setMargin(turnControlPanel, new Insets(20));
+        StackPane.setAlignment(turnControlPanel, Pos.BOTTOM_CENTER);
 
         Button undoBtn = new Button("Undo");
         undoBtn.setOnAction(e -> gameController.undo());
@@ -66,6 +80,8 @@ public class App extends Application {
 
         StackPane root = new StackPane();
 
+        PauseMenu pauseMenu = new PauseMenu();
+
         String timeControlStyle = "-fx-background-color: #2c3e50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15;";
         undoBtn.setStyle(timeControlStyle);
         redoBtn.setStyle(timeControlStyle);
@@ -76,22 +92,50 @@ public class App extends Application {
         StackPane.setAlignment(undoBtn, Pos.BOTTOM_LEFT);
         StackPane.setAlignment(redoBtn, Pos.BOTTOM_RIGHT);
 
-        Button saveBtn = getSaveBtn(game, root);
-
-        StackPane.setMargin(saveBtn, new Insets(20));
-        StackPane.setAlignment(saveBtn, Pos.TOP_RIGHT);
-
         FundsDisplay fundsDisplay = new FundsDisplay();
         StackPane.setAlignment(fundsDisplay, Pos.TOP_LEFT);
 
         gameView.setFundsDisplay(fundsDisplay);
 
-        root.getChildren().addAll(scrollMap, fundsDisplay, turnOverlay, passTurnBtn, undoBtn, redoBtn, saveBtn);
+        GameEndScreen gameEndScreen = new GameEndScreen();
+
+        gameEndScreen.getReplayBtn().setOnAction(e -> {
+            game.undo();
+            gameEndScreen.setVisible(false);
+            gameView.setDisable(false);
+            root.requestFocus();
+        });
+        gameEndScreen.getSaveBtn().setOnAction(e -> {
+            game.undo();
+            saveGame(game);
+        });
+        gameEndScreen.getQuitBtn().setOnAction(e -> quitGame());
+
+        gameView.setGameEndScreen(gameEndScreen);
+
+        root.getChildren().addAll(scrollMap, fundsDisplay, turnOverlay, turnControlPanel, undoBtn, redoBtn, gameEndScreen, pauseMenu);
 
         Scene gameplayScene = new Scene(root, 800, 600);
 
+        Runnable togglePauseMenu = () -> {
+            if (pauseMenu.isVisible()) {
+                pauseMenu.setVisible(false);
+                root.requestFocus();
+            } else {
+                pauseMenu.setVisible(true);
+                game.setGameState(GameState.PAUSE);
+                pauseMenu.requestFocus();
+            }
+        };
+
+        pauseMenu.getResumeBtn().setOnAction(e -> togglePauseMenu.run());
+        pauseMenu.getSaveBtn().setOnAction(e -> saveGame(game));
+
+        pauseMenu.getQuitBtn().setOnAction(e -> quitGame());
+
         gameplayScene.setOnKeyPressed(e -> {
             switch(e.getCode()) {
+                case ESCAPE -> togglePauseMenu.run();
                 case SPACE -> {
                     if (game.getGameState() == GameState.PLAY) {
                         game.setGameState(GameState.PAUSE);
@@ -128,32 +172,26 @@ public class App extends Application {
         gameplayScene.setOnMouseClicked(e -> root.requestFocus());
     }
 
-    private @NotNull Button getSaveBtn(Game game, StackPane root) {
-        Button saveBtn = new Button("Save game");
-        saveBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15;");
-        saveBtn.setFocusTraversable(false);
+    private void saveGame(Game game) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save game");
 
-        saveBtn.setOnAction(e -> {
-            GameState originalState = game.getGameState();
-            game.setGameState(GameState.PAUSE);
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON save files (*.json)", "*.json"));
+        fileChooser.setInitialFileName("saveGame.json");
+        fileChooser.setInitialDirectory(new File("./"));
 
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Save game");
+        File selectedFile = fileChooser.showSaveDialog(primaryStage);
 
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON save files (*.json)", "*.json"));
-            fileChooser.setInitialFileName("saveGame.json");
-            fileChooser.setInitialDirectory(new File("./"));
+        if (selectedFile != null) {
+            GameSaver.toFile(selectedFile, game);
+        }
+    }
 
-            File selectedFile = fileChooser.showSaveDialog(primaryStage);
+    private void quitGame() {
+        MainMenu menuView = new MainMenu(primaryStage, this::initialiseGame);
+        Scene menuScene = new Scene(menuView, 800, 600);
 
-            if (selectedFile != null) {
-                GameSaver.toFile(selectedFile, game);
-            }
-
-            game.setGameState(originalState);
-            root.requestFocus();
-        });
-        return saveBtn;
+        this.primaryStage.setScene(menuScene);
     }
 
     public static void main(String[] args) {

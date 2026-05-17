@@ -1,4 +1,4 @@
-package view;
+package view.menus;
 
 import game.Game;
 import javafx.stage.FileChooser;
@@ -14,12 +14,12 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.util.function.Consumer;
 
-public class GameMenu extends VBox {
+public class MainMenu extends VBox {
 
     private final Stage primaryStage;
     private final Consumer<Game> onGameReady;
 
-    public GameMenu(Stage primaryStage, Consumer<Game> onGameReady) {
+    public MainMenu(Stage primaryStage, Consumer<Game> onGameReady) {
         this.primaryStage = primaryStage;
         this.onGameReady = onGameReady;
 
@@ -31,9 +31,6 @@ public class GameMenu extends VBox {
         showMainMenu();
     }
 
-    /**
-     * SCREEN 1: Top-Level Landing Menu (New, Load, Exit)
-     */
     private void showMainMenu() {
         this.getChildren().clear();
 
@@ -57,9 +54,6 @@ public class GameMenu extends VBox {
         this.getChildren().addAll(title, newGameBtn, loadGameBtn, exitBtn);
     }
 
-    /**
-     * SCREEN 2: Match & Player Selection Configuration
-     */
     private void showSetupMenu() {
         this.getChildren().clear();
 
@@ -69,7 +63,7 @@ public class GameMenu extends VBox {
         Label mapLabel = new Label("Select Map Battleground:");
         mapLabel.setStyle("-fx-text-fill: #ecf0f1;");
         ComboBox<String> mapPicker = new ComboBox<>();
-        mapPicker.getItems().addAll("alaraRange.json", "coralLagoon.json"); // Add your map files here
+        mapPicker.getItems().addAll("alaraRange.json", "visionBridge.json"); // Add your map files here
         mapPicker.setValue("alaraRange.json");
 
         Label redLabel = new Label("Player 1 (RED) Controller:");

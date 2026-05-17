@@ -1,5 +1,9 @@
 package common.enums;
 
+/**
+ * Defines an enum with the two different players that can be present in each game along with their String labels.
+ * @author Tadeas Topinka (xtopint00)
+ */
 public enum Players {
     RED("Player1"),
     BLUE("Player2"),

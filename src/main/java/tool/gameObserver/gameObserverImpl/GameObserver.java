@@ -64,6 +64,8 @@ public class GameObserver implements tool.gameObserver.GameObserver {
 
             case UpdateHealthEvent e -> view.updateUnitHealth(e.position(), e.unitHealth());
 
+            case VictoryEvent e -> view.gameEnd(e.player());
+
             case null, default ->  {
 
             }
