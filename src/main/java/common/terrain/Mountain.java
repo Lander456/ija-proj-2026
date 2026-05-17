@@ -1,5 +1,10 @@
 package common.terrain;
 
+/**
+ * Class defining behaviour for all mountain tiles.
+ * @author Tadeas Topinka
+ * @see Terrain
+ */
 public class Mountain extends Terrain{
 
     public static final String code = "M";

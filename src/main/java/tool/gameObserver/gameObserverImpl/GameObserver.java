@@ -4,13 +4,28 @@ import common.gameEvents.GameEvent;
 import common.gameEvents.eventTypes.*;
 import view.GameView;
 
+/**
+ * Implementation of the GameObserver, used to convey updates from the Game to the View rendering it.
+ * @author Tadeas Topinka (xtopint00)
+ */
 public class GameObserver implements tool.gameObserver.GameObserver {
     private final GameView view;
 
+    /**
+     * Constructor for the GameObserver.
+     * @param view View to bind the GameObserver to.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public GameObserver(GameView view) {
         this.view = view;
     }
 
+    /**
+     * Method used to update the GameObserver about an event that occurred in the game, that should be relayed to the
+     * View and rendered.
+     * @param event Event that occurred inside the Game.
+     * @author Tadeas Topinka (xtopint00)
+     */
     @Override
     public void update(GameEvent event) {
         switch (event) {

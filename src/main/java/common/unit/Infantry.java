@@ -4,6 +4,11 @@ import common.enums.MovementTypes;
 import common.enums.Players;
 import common.enums.UnitTypes;
 
+/**
+ * Defines the behaviour for all the infantry units in the game.
+ * @author Tadeas Topinka (xtopint00)
+ * @see Unit
+ */
 public class Infantry extends Unit {
     public static final UnitTypes unitType = UnitTypes.Infantry;
 

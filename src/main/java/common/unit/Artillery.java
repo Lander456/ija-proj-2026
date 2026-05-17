@@ -4,6 +4,11 @@ import common.enums.MovementTypes;
 import common.enums.Players;
 import common.enums.UnitTypes;
 
+/**
+ * Defines the behaviour for artillery units in the game.
+ * @author Tadeas Topinka (xtopint00)
+ * @see Unit
+ */
 public class Artillery extends Unit {
     public static final UnitTypes unitType = UnitTypes.Artillery;
 

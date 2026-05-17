@@ -16,9 +16,19 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Class used to define how a Game should be loaded from a JSON.
+ * @author Tadeas Topinka (xtopint00)
+ */
 public class GameLoader {
     private static final ObjectMapper mapper = new ObjectMapper();
 
+    /**
+     * Loads a game from a compatible JSON file.
+     * @param resourcePath Path to the JSON file.
+     * @return Game instance with everything loaded in from said JSON file.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public static Game fromJson(String resourcePath) {
         InputStream inputStream;
         try {
@@ -61,6 +71,12 @@ public class GameLoader {
         }
     }
 
+    /**
+     * If the JSON contained a journal of actions, executes this journal and brings the game to its end.
+     * @param game Game to perform the journal actions on.
+     * @param mapConf Map configuration for said game.
+     * @author Tadeas Topinka (xtopint00)
+     */
     private static void executeJournal(Game game, GameConfig mapConf) {
         for (GameConfig.JournalEntry entry : mapConf.journal) {
             switch (entry) {

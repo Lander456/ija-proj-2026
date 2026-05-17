@@ -10,6 +10,11 @@ public class PauseMenu extends VBox {
     private final Button resumeBtn;
     private final Button quitBtn;
 
+    /**
+     * Defines the PauseMenu GUI element, diplayed whenever ESC is pressed when in-game, contains buttons used to save
+     * the current game, return to the main menu or return to the game.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public PauseMenu() {
         this.setAlignment(Pos.CENTER);
         this.setSpacing(20);

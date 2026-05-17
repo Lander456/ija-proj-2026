@@ -4,6 +4,10 @@ import common.terrain.Terrain;
 import common.terrain.TerrainFactory;
 import common.unit.Unit;
 
+/**
+ * Class defining the behaviour for all the tiles in the game (the entire map)
+ * @author Tadeas Topinka (xtopint00)
+ */
 public class Tile {
 
     private final Terrain terrain;

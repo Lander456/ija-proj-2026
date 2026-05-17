@@ -22,6 +22,10 @@ import view.menus.PauseMenu;
 
 import java.io.File;
 
+/**
+ * Main App class used to bootstart and render the Game.
+ * @author Tadeas Topinka (xtopint00)
+ */
 public class App extends Application {
 
     private Stage primaryStage;
@@ -38,6 +42,11 @@ public class App extends Application {
         this.primaryStage.show();
     }
 
+    /**
+     * Initialises the Game when it is able to start (loaded and all)
+     * @param game Game to initialise.
+     * @author Tadeas Topinka (xtopint00)
+     */
     private void initialiseGame(Game game) {
         GameView gameView = new GameView(game);
         Label turnLabel = gameView.getTurnLabel();
@@ -172,6 +181,11 @@ public class App extends Application {
         gameplayScene.setOnMouseClicked(e -> root.requestFocus());
     }
 
+    /**
+     * Saves the game to a file chosen by the player.
+     * @param game Game to be saved.
+     * @author Tadeas Topinka (xtopint00)
+     */
     private void saveGame(Game game) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save game");
@@ -187,6 +201,10 @@ public class App extends Application {
         }
     }
 
+    /**
+     * Quits the game and returns the player to the main menu.
+     * @author Tadeas Topinka (xtopint00)
+     */
     private void quitGame() {
         MainMenu menuView = new MainMenu(primaryStage, this::initialiseGame);
         Scene menuScene = new Scene(menuView, 800, 600);

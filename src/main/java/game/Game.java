@@ -71,6 +71,11 @@ public class Game {
         }
     }
 
+    /**
+     * Alternative constructor for the Game, utilising a new mapDef defined in the jsons.
+     * @param mapDef Map definition gotten from the game JSON.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public Game(String[][] mapDef){
         this.redPlayer = new Player(Players.RED, 2000, new ArrayList<>(),  new ArrayList<>());
         this.bluePlayer = new Player(Players.BLUE, 2000, new ArrayList<>(), new ArrayList<>());
@@ -97,7 +102,6 @@ public class Game {
      */
     public Unit createUnit(String type, String player, Integer startX, Integer startY) {
         Unit unit = UnitFactory.create(type, player, startX, startY);
-        System.out.println(unit.getOwnedBy().toString());
         map[startY][startX].setUnit(unit);
         if (player.equalsIgnoreCase(Players.RED.toString()) || player.equalsIgnoreCase(Players.RED.getLabel())) {
             redPlayer.addUnit(unit);
@@ -131,6 +135,13 @@ public class Game {
         }
     }
 
+    /**
+     * Teleports a unit to the specified destination, disregarding whether the unit could leagally get there according
+     * to Dijkstra.
+     * @param destination Destination position for the unit.
+     * @param unit Unit to teleport.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void teleportUnit(Position destination, Unit unit) {
         Position startPosition = unit.getPosition();
 
@@ -262,22 +273,32 @@ public class Game {
         return reachableTiles;
     }
 
+    /**
+     * Updates the owner of a tile, usually used following a capture.
+     * @param x X coordinate of the tile.
+     * @param y Y coordinate of the tile.
+     * @param player New owner of the tile.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void updateTerrainOwner(int x, int y, String player) {
         if (x >= 0 && x < map[0].length && y >= 0 && y < map.length) {
             String terrainType = map[y][x].getTerrain().getTerrainCode();
             map[y][x] = new Tile(terrainType, player);
             if (Players.fromString(player).equals(Players.RED)) {
-                System.out.println("x = " + x + ", y = " + y);
                 bluePlayer.removeProperty((Capturable) map[y][x].getTerrain());
                 redPlayer.addProperty((Capturable) map[y][x].getTerrain());
             } else {
-                System.out.println("x = " + x + ", y = " + y);
                 redPlayer.removeProperty((Capturable) map[y][x].getTerrain());
                 bluePlayer.addProperty((Capturable) map[y][x].getTerrain());
             }
         }
     }
 
+    /**
+     * Selects a tile and saves it into the selectedTile instantiation variable.
+     * @param position Position of the selected tile.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void selectTile(Position position) {
         this.selectedTilePos = new Position(position.x(), position.y());
         Unit selectedUnit = map[position.y()][position.x()].getUnit();
@@ -289,6 +310,12 @@ public class Game {
         }
     }
 
+    /**
+     * Handles the action menu command from the controller, evaluates where the action menu should be shown and what to
+     * show in it.
+     * @param position Position where the action menu should appear.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void handleActionMenu(Position position) {
         if (this.selectedTilePos == null) {
             return;
@@ -316,6 +343,11 @@ public class Game {
         notifyObservers(new ActionMenuEvent(position, actions));
     }
 
+    /**
+     * Handle for the attack action order from the controller.
+     * @param target Target unit for the attack.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void handleAttack(Position target) {
         Unit attackingUnit = map[this.selectedTilePos.y()][this.selectedTilePos.x()].getUnit();
         Unit targetUnit = map[target.y()][target.x()].getUnit();
@@ -325,6 +357,11 @@ public class Game {
         }
     }
 
+    /**
+     * Handle for performing the capture action when received from the controller.
+     * @param position Position where the capturing is taking place.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void handleCapture(Position position) {
         Tile tile = map[position.y()][position.x()];
 
@@ -334,6 +371,14 @@ public class Game {
         gameJournal.addAndExecute(new CaptureAction(this, position, unit, capturable.getOwner(), capturable.getResistance()));
     }
 
+    /**
+     * Transfers property ownership from one player to another (or removes the property from the player in case of neutrals).
+     * @param property Property to be transferred.
+     * @param oldOwner Old owner of the property.
+     * @param newOwner New owner of the property.
+     * @param position Position of the property on the game map.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void transferProperty(Capturable property, Players oldOwner, Players newOwner, Position position) {
         if (oldOwner == Players.NEUTRAL) {
             Player newPlayerOwner = (newOwner == Players.RED) ? redPlayer : bluePlayer;
@@ -355,11 +400,22 @@ public class Game {
         notifyObservers(new CaptureEvent(position, newOwner));
     }
 
+    /**
+     * Handles cancelling a tile selection, clears all reachable tiles.
+     * @author Tadeas Topinka.
+     */
     private void cancelSelection() {
         this.currentReachable.clear();
         notifyObservers(new SelectEvent(null, false));
     }
 
+    /**
+     * Performs a capture action on a tile.
+     * @param position Position where the capturing is taking place.
+     * @param unit Unit that is performing the capturing.
+     * @return Boolean indicating whether teh tile has been captured or is still resisting.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public Boolean captureTile(Position position, Unit unit) {
         boolean captured = false;
         Capturable capturable = (Capturable) map[position.y()][position.x()].getTerrain();
@@ -368,7 +424,6 @@ public class Game {
         capturable.capture(unit);
         unit.setHasMoved(true);
         unit.setHasAttacked(true);
-        System.out.println("Capturable resistance: " + capturable.getResistance());
 
         if (capturable.getOwner() != oldController) {
             captured = true;
@@ -381,10 +436,20 @@ public class Game {
         return captured;
     }
 
+    /**
+     * Gets a tile from the map defined by its position.
+     * @param position Position of the requested tile.
+     * @return Tile on the position passed into the method.
+     */
     public Tile getTile(Position position) {
         return map[position.y()][position.x()];
     }
 
+    /**
+     * Handle for performing a move when instructed to do so by the controller.
+     * @param position Position to where the unit will be moving.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void handleMove(Position position) {
         Unit movedUnit = map[selectedTilePos.y()][selectedTilePos.x()].getUnit();
         if (movedUnit == null) {
@@ -399,6 +464,12 @@ public class Game {
         gameJournal.addAndExecute(move);
     }
 
+    /**
+     * Carries out an attack action.
+     * @param attacker Attacking unit.
+     * @param defender Defending unit.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void attack(Unit attacker, Unit defender) {
         Position defenderPosition = defender.getPosition();
         Position attackerPosition = attacker.getPosition();
@@ -412,7 +483,6 @@ public class Game {
 
         if (defender.getHealth() > 0) {
             if (getAttackReach(defenderPosition, defender.minAttackRange(), defender.maxAttackRange()).contains(attackerPosition)) {
-                System.out.println("CounterAttacking!!");
                 Terrain attackerTerrain = map[attackerPosition.y()][attackerPosition.x()].getTerrain();
                 Integer counterAttackDamage = CombatService.calculateDamage(defender, attacker, attackerTerrain);
 
@@ -435,6 +505,14 @@ public class Game {
         notifyObservers(new AttackEvent(attackerPosition, defenderPosition, attacker.getHealth(), defender.getHealth()));
     }
 
+    /**
+     * Calculates which tiles are reachable by a unit's attack.
+     * @param from Position from which the attack originates (position of the attacking unit).
+     * @param minRange Minimum range of the attacking unit.
+     * @param maxRange Maximum range of the attacking unit.
+     * @return List of all position reachable by the unit's attack.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public List<Position> getAttackReach(Position from, Integer minRange, Integer maxRange) {
         Unit attackingUnit = getTile(from).getUnit();
         List<Position> targets = new ArrayList<>();
@@ -461,15 +539,23 @@ public class Game {
         return targets;
     }
 
+    /**
+     * Handle for performing the endTurn command when instructed by the controller.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void handleEndTurn() {
         gameJournal.addAndExecute(new EndTurnAction(this, activePlayer.getFunds(), activePlayer));
     }
 
+    /**
+     * Ends the turn and hands over control to the other player.
+     * @param endTurnAction EndTurnAction used to perform this.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void endTurn(EndTurnAction endTurnAction) {
         this.selectedTilePos = null;
         this.currentReachable.clear();
         activePlayer.endTurn();
-        System.out.println("ActivePlayer = " + activePlayer.getSide() + " player funds: " + activePlayer.getFunds());
 
         activePlayer = (activePlayer == bluePlayer) ? redPlayer : bluePlayer;
         activePlayer.startTurn();
@@ -479,9 +565,13 @@ public class Game {
         notifyObservers(new TurnChangeEvent(activePlayer.getSide(), activePlayer.getFunds()));
     }
 
+    /**
+     * Heals the units of a certain player.
+     * @param player Player whose units should be healed.
+     * @param endTurnAction EndTurnAction instance used to perform this action, used to journal which units have been healed.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void healUnits(Player player, EndTurnAction endTurnAction) {
-        System.out.println("Healing units for player: " + activePlayer.getSide());
-        System.out.println("PlayerUnitCount = " + activePlayer.getUnits().size());
         for (Unit u : activePlayer.getUnits()) {
             Integer unitHealth = u.getHealth();
             Position unitPosition = u.getPosition();
@@ -489,7 +579,6 @@ public class Game {
             Terrain unitTerrain = map[unitPosition.y()][unitPosition.x()].getTerrain();
 
             if (unitTerrain instanceof Capturable capturable) {
-                System.out.println(capturable.getOwner() + "==" + u.getOwnedBy());
                 if (unitHealth < 100 && capturable.heals() && player.getFunds() >= healingCost && capturable.getOwner() == u.getOwnedBy()) {
                     player.spendFunds(healingCost);
                     if (100 - unitHealth > 20) {
@@ -510,12 +599,23 @@ public class Game {
         return (redPlayer.getSide() == playerSide) ? redPlayer : bluePlayer;
     }
 
+    /**
+     * Transfers control to a different player.
+     * @param receiver Player to hand the control over to.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void transferControl(Player receiver) {
         activePlayer = receiver;
         notifyObservers(new FundsUpdateEvent(activePlayer.getFunds()));
         notifyObservers(new TurnChangeEvent(activePlayer.getSide(), activePlayer.getFunds()));
     }
 
+    /**
+     * Performs a build action and spawns in a new unit onto the map.
+     * @param position Position where the new unit will spawn in to.
+     * @param unitType Type of unit to be spawned.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void buildUnit(Position position, UnitTypes unitType) {
         Unit createdUnit = createUnit(unitType.toString(), activePlayer.getSide().toString(), position.x(), position.y());
         createdUnit.setHasAttacked(true);
@@ -523,6 +623,12 @@ public class Game {
         notifyObservers(new BuildEvent(position, createdUnit));
     }
 
+    /**
+     * Handle for performing the build action when instructed to do so by the controller.
+     * @param position Position where the build is taking place.
+     * @param unitType Unit type to be spawned in.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void handleBuild(Position position, UnitTypes unitType) {
         int unitCost = UnitRegistry.getCost(unitType);
         if (unitCost <= activePlayer.getFunds()) {
@@ -531,6 +637,11 @@ public class Game {
         }
     }
 
+    /**
+     * Removes a unit from the map.
+     * @param position Position of the unit to be deleted.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void removeUnit(Position position) {
         Unit unit = map[position.y()][position.x()].getUnit();
         map[position.y()][position.x()].setUnit(null);
@@ -538,36 +649,71 @@ public class Game {
         notifyObservers(new DeleteUnitEvent(position));
     }
 
+    /**
+     * Adds funds to the active player.
+     * @param amount Amount of funds to add to the player.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void addPlayerFunds(Integer amount) {
         activePlayer.addFunds(amount);
         notifyObservers(new FundsUpdateEvent(activePlayer.getFunds()));
     }
 
+    /**
+     * Spends the active players funds.
+     * @param amount Amount of funds to spend for the player.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void spendPlayerFunds(Integer amount) {
         activePlayer.spendFunds(amount);
         notifyObservers(new FundsUpdateEvent(activePlayer.getFunds()));
     }
 
+    /**
+     * Restores a unit back onto the map, used in rewinds of attack actions that resulted in a unit getting destroyed.
+     * @param unit Unit to be respawned.
+     * @param position Position to spawn the unit into.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void restoreUnit(Unit unit, Position position) {
         map[position.y()][position.x()].setUnit(unit);
         notifyObservers(new BuildEvent(position, unit));
     }
 
+    /**
+     * Rewinds the last performed action.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void undo() {
         gameJournal.undoLast();
     }
 
+    /**
+     * Redos the last rewinded performed action.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void redo() {
         gameJournal.redoLast();
     }
 
     public Player getActivePlayer() { return activePlayer; }
 
+    /**
+     * Configures which player is an AI and which is a human.
+     * @param redAI Boolean indicating whether the red player is an AI.
+     * @param blueAI Boolean indicating whether the blue player is an AI.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void configurePlayerRoles(boolean redAI, boolean blueAI) {
         this.redAI = redAI;
         this.blueAI = blueAI;
     }
 
+    /**
+     * Checks whether the currently active player is an AI.
+     * @return Boolean indicating whether the active player is an AI.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public boolean isCurrentPlayerAI() {
         if (getActivePlayer().getSide() == Players.RED) return redAI;
         if (getActivePlayer().getSide() == Players.BLUE) return blueAI;

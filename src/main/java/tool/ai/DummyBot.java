@@ -19,13 +19,26 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Defines a random dummy bot that just performs random actions with its units.
+ * @author Tadeas Topinka (xtopint00)
+ */
 public class DummyBot {
     private final Game game;
 
+    /**
+     * Constructor for the DummyBot.
+     * @param game Game this DummyBot will be used in.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public DummyBot(Game game) {
         this.game = game;
     }
 
+    /**
+     * Instructs the bot to evaluate which actions are available to it and takes a random one.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void takeAction() {
         List<GameAction> availableActions = new ArrayList<>();
         Player activePlayer = game.getActivePlayer();

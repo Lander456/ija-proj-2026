@@ -1,5 +1,9 @@
 package common.terrain;
 
+/**
+ * Abstract class defining the base behaviour for all terrain.
+ * @author Tadeas Topinka (xtopint00)
+ */
 public abstract class Terrain {
     public abstract Integer getMovementCost(Boolean isWheeled);
     public abstract Integer getDefenceBonus();

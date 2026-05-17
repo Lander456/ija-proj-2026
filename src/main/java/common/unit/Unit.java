@@ -5,6 +5,10 @@ import common.enums.MovementTypes;
 import common.enums.Players;
 import common.enums.UnitTypes;
 
+/**
+ * Defines the base behaviour for all the units in the game.
+ * @author Tadeas Topinka (xtopint00)
+ */
 public abstract class Unit {
     private Integer health = 100;
     private Boolean hasMoved = false;

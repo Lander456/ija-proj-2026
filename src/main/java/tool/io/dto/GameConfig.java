@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.List;
 
+/**
+ * Class used to define the Game configuration, used for serialization and deserialization of the map and save jsons.
+ * @author Tadeas Topinka (xtopint00)
+ */
 public class GameConfig {
     public String[][] terrain;
     public List<OwnershipEntry> ownership;

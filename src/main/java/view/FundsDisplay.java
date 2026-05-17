@@ -3,6 +3,10 @@ package view;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 
+/**
+ * Defines the FundsDisplay GUI element displayed in the game, showing how many funds a player has available to them.
+ * @author Tadeas Topinka (xtopint00)
+ */
 public class FundsDisplay extends HBox {
     private final Label fundsLabel;
 

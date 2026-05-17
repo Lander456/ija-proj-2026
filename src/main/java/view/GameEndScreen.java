@@ -6,6 +6,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
+/**
+ * Defines the GameEndScreen GUI element, displayed to the player when a game ends (by capturing the opponent's HQ)
+ * @author Tadeas Topinka (xtopint00)
+ */
 public class GameEndScreen extends VBox {
     private final Label victoryMessage;
     private final Button replayBtn;

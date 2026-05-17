@@ -7,6 +7,11 @@ import common.unit.Unit;
 import game.Game;
 import tool.io.dto.GameConfig;
 
+/**
+ * Defines a class used to contain a singular attack action performed during the game, mainly used for journaling
+ * purposes.
+ * @author Tadeas Topinka (xtopint00)
+ */
 public class AttackAction implements GameAction {
     private final Game game;
     private final Unit attacker, defender;
@@ -16,6 +21,15 @@ public class AttackAction implements GameAction {
     private Boolean attackerKilled = false;
     private Boolean defenderKilled = false;
 
+    /**
+     * Constructor for the AttackAction class.
+     * @param game Game instance where this action happened to have a reference to the units involved.
+     * @param attacker Attacking unit.
+     * @param defender Defending unit.
+     * @param attackerPrevHp Hp of the attacker from before the attack occurred, used for journaling and undo/redo actions.
+     * @param defenderPrevHp Hp of the defender from before the attack occurred used for journaling and undo/redo acitons.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public AttackAction(Game game, Unit attacker, Unit defender, int attackerPrevHp, int defenderPrevHp) {
         this.game = game;
         this.attacker = attacker;
@@ -29,6 +43,9 @@ public class AttackAction implements GameAction {
         this.attackerMoved = attacker.getHasMoved();
     }
 
+    /**
+     * Method used to execute the action.
+     */
     @Override
     public void execute() {
         game.attack(attacker, defender);
@@ -42,6 +59,9 @@ public class AttackAction implements GameAction {
         }
     }
 
+    /**
+     * Method used to rewind the action.
+     */
     @Override
     public void undo() {
         attacker.setHealth(attackerPrevHp);
@@ -64,6 +84,11 @@ public class AttackAction implements GameAction {
         }
     }
 
+    /**
+     * Serializes the action data into a JSON format to be able to save the action.
+     * @return JournalEntry of the action, which is a JSONifiable datatype.
+     * @author Tadeas Topinka (xtopint00)
+     */
     @Override
     public GameConfig.JournalEntry toJson() {
         GameConfig.AttackActionJson attackActionJson = new GameConfig.AttackActionJson();

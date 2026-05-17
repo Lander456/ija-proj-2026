@@ -1,5 +1,10 @@
 package common.terrain;
 
+/**
+ * Class defining the behaviour for all forest tiles.
+ * @author Tadeas Topinka (xtopint00)
+ * @see Terrain
+ */
 public class Forest extends Terrain{
     public static final String code = "F";
 

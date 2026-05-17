@@ -12,6 +12,10 @@ import javafx.util.Duration;
 import tool.gameObserver.GameObserver;
 import view.GameView;
 
+/**
+ * Defines an observer class used to control the AI activity in the game.
+ * @author Tadeas Topinka (xtopint00)
+ */
 public class AIManager implements GameObserver {
 
     private final Game game;
@@ -19,6 +23,12 @@ public class AIManager implements GameObserver {
     private final DummyBot bot;
     private Timeline aiTimeLine;
 
+    /**
+     * Constructor for the AIManager class.
+     * @param game Game instance this manager will be overlooking.
+     * @param view View this manager will be communicating the events to.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public AIManager(Game game, GameView view) {
         this.game = game;
         this.view = view;
@@ -27,11 +37,20 @@ public class AIManager implements GameObserver {
         setUpTimeline();
     }
 
+    /**
+     * Sets up the AI action timeline.
+     * @author Tadeas Topinka (xtopint00)
+     */
     private void setUpTimeline() {
         aiTimeLine = new Timeline(new KeyFrame(Duration.seconds(0.1), e -> bot.takeAction()));
         aiTimeLine.setCycleCount(Timeline.INDEFINITE);
     }
 
+    /**
+     * Catches any incoming events and processes them if they are relevant for the AI control.
+     * @param event Event caught by the update.
+     * @author Tadeas Topinka (xtopint00)
+     */
     @Override
     public void update(GameEvent event) {
         switch (event) {
@@ -68,6 +87,10 @@ public class AIManager implements GameObserver {
         }
     }
 
+    /**
+     * Stops the AI from performing any further actions (presumably because a pause had been performed by the player.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public void haltAI() {
         if (aiTimeLine != null) {
             aiTimeLine.stop();

@@ -1,5 +1,10 @@
 package common.terrain;
 
+/**
+ * Class defining the behaviour for all HQ tiles.
+ * @author Tadeas Topinka
+ * @see Capturable
+ */
 public class HQ extends Capturable{
 
     public static final String code = "H";

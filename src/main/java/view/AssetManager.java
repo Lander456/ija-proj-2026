@@ -7,6 +7,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Defines a class used to get assets (sprites) from the resources folder.
+ * @author Tadeas Topinka (xtopint00)
+ */
 public class AssetManager {
     private static final Map<String, Image> cache = new HashMap<>();
 

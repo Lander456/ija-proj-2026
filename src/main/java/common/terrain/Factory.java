@@ -1,5 +1,10 @@
 package common.terrain;
 
+/**
+ * Class defining the behaviour for all factories.
+ * @author Tadeas Topinka (xtopint00)
+ * @see Capturable
+ */
 public class Factory extends Capturable{
 
     public static final String code = "FA";

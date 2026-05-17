@@ -8,6 +8,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+/**
+ * Defines the turn overlay GUI used to show a banner telling the player whose turn it is.
+ * @author Tadeas Topinka (xtopint00)
+ */
 public class TurnOverlay extends StackPane {
     private final Label turnLabel;
 

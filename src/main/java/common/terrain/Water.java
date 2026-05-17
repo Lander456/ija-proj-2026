@@ -1,5 +1,10 @@
 package common.terrain;
 
+/**
+ * Class defining base behaviour for all the water in the game.
+ * @author Tadeas Topinka (xtopint00)
+ * @see Terrain
+ */
 public class Water extends Terrain{
 
     public static final String code = "W";

@@ -1,5 +1,10 @@
 package common.terrain;
 
+/**
+ * Class defining the behaviour for all city tiles.
+ * @author Tadeas Topinka (xtopint00)
+ * @see Capturable
+ */
 public class City extends Capturable{
 
     public static final String code = "C";

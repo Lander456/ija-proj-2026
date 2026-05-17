@@ -14,11 +14,21 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.util.function.Consumer;
 
+/**
+ * Defines the MainMenu GUI element and its game setup submenu.
+ * @author Tadeas Topinka (xtopint00)
+ */
 public class MainMenu extends VBox {
 
     private final Stage primaryStage;
     private final Consumer<Game> onGameReady;
 
+    /**
+     * MainMenu constructor used to create the GUI elements.
+     * @param primaryStage Primary stage for the JavaFX GUI.
+     * @param onGameReady  Consumer used to start the Game.
+     * @author Tadeas Topinka (xtopint00)
+     */
     public MainMenu(Stage primaryStage, Consumer<Game> onGameReady) {
         this.primaryStage = primaryStage;
         this.onGameReady = onGameReady;
@@ -31,6 +41,10 @@ public class MainMenu extends VBox {
         showMainMenu();
     }
 
+    /**
+     * Displays the game menu to the player.
+     * @author Tadeas Topinka (xtopint00)
+     */
     private void showMainMenu() {
         this.getChildren().clear();
 
@@ -41,7 +55,6 @@ public class MainMenu extends VBox {
         Button loadGameBtn = new Button("Load Game");
         Button exitBtn = new Button("Exit");
 
-        // Shared button style for cohesion
         String menuBtnStyle = "-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-min-width: 220px; -fx-padding: 10 20;";
         newGameBtn.setStyle(menuBtnStyle);
         loadGameBtn.setStyle(menuBtnStyle);
@@ -54,13 +67,17 @@ public class MainMenu extends VBox {
         this.getChildren().addAll(title, newGameBtn, loadGameBtn, exitBtn);
     }
 
+    /**
+     * Displays the game setup menu to the player.
+     * @author Tadeas Topinka (xtopint00)
+     */
     private void showSetupMenu() {
         this.getChildren().clear();
 
-        Label setupTitle = new Label("MATCH SETUP");
+        Label setupTitle = new Label("GAME SETUP");
         setupTitle.setStyle("-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-padding: 0 0 10 0;");
 
-        Label mapLabel = new Label("Select Map Battleground:");
+        Label mapLabel = new Label("Select Map:");
         mapLabel.setStyle("-fx-text-fill: #ecf0f1;");
         ComboBox<String> mapPicker = new ComboBox<>();
         mapPicker.getItems().addAll("alaraRange.json", "visionBridge.json"); // Add your map files here
@@ -102,6 +119,10 @@ public class MainMenu extends VBox {
         this.getChildren().addAll(setupTitle, mapLabel, mapPicker, redLabel, redType, blueLabel, blueType, launchBtn, backBtn);
     }
 
+    /**
+     * Handle used to load the game.
+     * @author Tadeas Topinka (xtopint00)
+     */
     private void handleLoadGame() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open In-Progress Game Save JSON");
@@ -114,7 +135,6 @@ public class MainMenu extends VBox {
                 onGameReady.accept(loadedGame);
             } catch (Exception ex) {
                 System.err.println("Error decoding save file mapping parameters.");
-                ex.printStackTrace();
             }
         }
     }

@@ -1,5 +1,10 @@
 package common.terrain;
 
+/**
+ * Class defining behaviour for all plains tiles.
+ * @author Tadeas Topinka (xtopint00)
+ * @see Terrain
+ */
 public class Plain extends Terrain{
 
     public static final String code = "P";
